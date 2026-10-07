@@ -124,6 +124,42 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Lokal ist `/telescope` gemäß Telescope-Standard ohne Anmeldung erreichbar. Eine automatische Bereinigung und ein Zugang für QA/Staging wurden nicht eingerichtet. Die zuvor gestellte Frage zum QA-/Staging-Bedarf blieb unbeantwortet; die angekündigte lokale Variante wurde umgesetzt.
 - README und dieses Protokoll aktualisiert. Bisherige Arbeitsschritte und offene Aufgaben bleiben erhalten.
 
+### 8. Rückbau der entfernten Queue-Monitoring-Integration und Backup-Prüfung
+
+- Auftrag: Nach manuellem Rückbau verbliebene Dateien, lokale Konfiguration und Paketreste entfernen; anschließend Spatie Laravel Backup prüfen.
+- Composer-Dateien, Providerregistrierung, Runner-Konfiguration, Kontoansicht, Scheduler, Tests und Dokumentation überprüft. Die manuellen Änderungen hatten die registrierten Integrationen bereits zurückgesetzt; unversionierte Provider-, Befehls-, Konfigurations-, Test- und Deployment-Dateien waren noch vorhanden.
+- Diese fünf Restdateien gelöscht. Lokale Umgebungsvariable und abgeleitete Paket-/Test-Caches werden ebenfalls bereinigt; Windows-Installationsausnahmen sind in der README bereits entfernt.
+- Spatie Laravel Backup vor einer Installation geprüft: [offizielle Anforderungen](https://spatie.be/docs/laravel-backup/v10/requirements) schließen Windows-Server ausdrücklich aus. PHP/ZIP passen grundsätzlich, die Plattform jedoch nicht.
+- Benutzer vorab informiert und gefragt, ob eine Windows-kompatible Alternative geprüft oder das Paket nur für späteren Linux-Betrieb integriert werden soll. Bis zur Entscheidung keine Installation und keine Plattformausnahmen vorgenommen.
+- Künftig bei neuen Produkten vor Installation/Betrieb die Plattformvoraussetzungen prüfen und fehlende Windows-Unterstützung vorab mitteilen.
+- `composer install --no-interaction --no-scripts` gegen die bereits zurückgesetzte Lockdatei ausgeführt: drei veraltete Pakete aus `vendor/` entfernt. Keine neue Abhängigkeit installiert.
+- Lokalen Aktivierungsschalter entfernt und Redis-Client auf den ursprünglichen Vorlagenwert zurückgesetzt. Leeren Deployment-Ordner und alten PHPUnit-Ergebniscache entfernt.
+- Generierte Provider-/Konfigurations-/Routencaches entfernt, Paketregistrierung neu aufgebaut, kompilierte Blade-Ansichten und Berechtigungscache geleert.
+- Berechtigungsprüfung zunächst über Tinker versucht; wegen fehlender Schreibberechtigung für dessen History abgebrochen. Anschließend direkte PHP-Abfrage verwendet: keine obsolete Zugriffsberechtigung vorhanden, keine Datenbankdaten gelöscht.
+- Abschlussprüfung: **28 Tests, 106 Assertions erfolgreich**; Pint erfolgreich. Composer-Plattformprüfung vollständig erfolgreich, ohne Ausnahmen; Konfiguration gültig mit der bekannten Spatie-Versionswarnung.
+- Suche in aktiven Projektdateien, lokaler Umgebung und generierten Provider-Caches ergab keine Referenzen auf die entfernte Integration. Die zugehörigen Vendor-Paketverzeichnisse sind nicht mehr vorhanden.
+- Backup-Installation bleibt bis zur Klärung der Zielplattform offen. Kein Backup erstellt und keine automatische Sicherung eingerichtet.
+
+### 9. Windows-taugliche Backup-Alternativen geprüft
+
+- Auftrag: Windows-Unterstützung und Alternativen prüfen; keine Installation beauftragt.
+- Offizielle Anforderungen von Spatie, SQLite-Dokumentation, MariaDB-Dump-Dokumentation sowie Restic- und Kopia-Herstellerinformationen gelesen. Spatie bleibt wegen fehlender Windows-Unterstützung ausgeschlossen.
+- Lokale PHP-/ZIP-/SQLite-Voraussetzungen und vorhandene Backup-Werkzeuge geprüft. Ein erster Probeaufruf über die separate `SQLite3`-Klasse scheiterte, weil die Erweiterung fehlt; über PDO erfolgreich geprüft: SQLite 3.51.3, ZIP vorhanden.
+- MariaDB-Dump-Programme unter `C:/Apps/mariadb/bin/` gefunden und `mariadb-dump.exe --version` aufgerufen. Keine echte MariaDB-Sicherung durchgeführt.
+- Temporäre SQLite-Testdatenbank über PDO und `VACUUM INTO` gesichert; Sicherung wieder geöffnet und auf Datensatz sowie Integrität geprüft. Ergebnis: `restored_rows=1`, `integrity=ok`. Temporäre Datei entfernt; echte Projektdatenbank unverändert.
+- Ergebnis in `BACKUP_PRUEFUNG.md` dokumentiert und aus der README verlinkt. Empfehlung: kleiner eigener Artisan-Befehl für Datenbank-Snapshot/Dump und Dateisicherung; optional Restic/Kopia für verschlüsselte externe Speicherung. Eigenentwicklung ist vorgeschlagen, nicht umgesetzt.
+- Restic und Kopia sind laut Hersteller Windows-tauglich. Keine lokale Installation/Produkttests durchgeführt; Datenbanksicherungen müssen vor einer gewöhnlichen Dateisicherung konsistent erzeugt werden.
+- Kein Backup-Paket installiert, keine reale Sicherung erstellt, keine Zeitplanung eingerichtet. Anwendungstests nicht erneut ausgeführt, da nur Recherche und Dokumentation geändert wurden; die gezielte SQLite-Laufzeitprüfung war erfolgreich.
+
+### 10. Kopia unter Windows installiert und geprüft
+
+- Auf Benutzerwunsch Kopia gewählt; offizielle Windows-Unterstützung und Installationsweg geprüft.
+- KopiaUI 0.23.1 per `winget install --id Kopia.KopiaUI --exact --source winget --scope user --silent --accept-package-agreements --accept-source-agreements --disable-interactivity` installiert; winget bestätigte den Installer-Hash und erfolgreiche Installation.
+- Mitgelieferte CLI unter `%LOCALAPPDATA%/Programs/KopiaUI/resources/server/kopia.exe` mit `--version` geprüft. Kein Laravel-Composer-Paket hinzugefügt.
+- Isoliertes verschlüsseltes Test-Repository erstellt, eine Testdatei gesichert und in einen neuen Testordner wiederhergestellt. SHA256-Prüfsummen identisch; Testdaten, Repository, Cache und Konfiguration anschließend entfernt. Kein echtes Backup und keine Änderung der Anwendungsdatenbank.
+- `KOPIA_SETUP.md` angelegt, `BACKUP_PRUEFUNG.md` und README aktualisiert. Anwendungs-Code unverändert; deshalb keine erneuten Laravel-Tests erforderlich.
+- Zielpfad beziehungsweise Anbieter und Umfang per Rückfrage angefordert; Antworten stehen aus. Echtes Repository, SQLite-Vorbereitung, Zeitplanung, Aufbewahrung und vollständiger Restore-Test bleiben offen. Passwort ausschließlich lokal in KopiaUI eingeben.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen
@@ -183,6 +219,7 @@ Tests nutzen SQLite im Arbeitsspeicher. Für neue Checkouts und die Ersteinricht
 - [ ] Standard-`DatabaseSeeder` prüfen: er enthält noch die Laravel-Testbenutzeranlage. Nicht ungeprüft für reale Umgebungen verwenden.
 - [ ] Aufbewahrungsdauer für Telescope-Aufzeichnungen festlegen; bei Bedarf automatische Bereinigung und lokalen Scheduler einrichten.
 - [ ] Veraltete Informationen in `AGENTS.md` erst aktualisieren, wenn die ursprüngliche Vorgabe zum Nichtändern aufgehoben wird.
+- [ ] Kopia fertig einrichten: Ziel und Umfang klären, konsistenten SQLite-Snapshot vorbereiten, echtes Repository einrichten, Intervall/Aufbewahrung festlegen und Wiederherstellung prüfen. Installation und isolierter Kopia-Dateitest sind abgeschlossen; siehe `KOPIA_SETUP.md`.
 
 ### Späterer MariaDB-Wechsel und Betrieb
 

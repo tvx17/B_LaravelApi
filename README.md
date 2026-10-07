@@ -4,6 +4,8 @@ Eine minimale API-Basis mit Laravel 13 und PHP ab 8.3.
 
 Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben werden in [PROJEKTDOKUMENTATION.md](PROJEKTDOKUMENTATION.md) fortlaufend festgehalten.
 
+Windows-Eignung und Alternativen für Sicherungen: [BACKUP_PRUEFUNG.md](BACKUP_PRUEFUNG.md).
+
 ## Lokal starten
 
 Abhängigkeiten und lokaler Anwendungsschlüssel sind bereits eingerichtet.
@@ -96,6 +98,10 @@ php artisan telescope:prune --hours=48
 ```
 
 Der Befehl entfernt Aufzeichnungen, die älter als 48 Stunden sind. Eine automatische Bereinigung ist noch nicht eingerichtet. Bei einem neuen Checkout legt `php artisan migrate` auch die Telescope-Tabellen an.
+
+## Backups mit Kopia
+
+KopiaUI ist lokal unter Windows installiert; Sicherung und Wiederherstellung mit temporären Dateien wurden geprüft. Ziel, Umfang und automatische Datenbank-Vorbereitung stehen noch aus. Details: [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).
 
 ## Prüfung
 
