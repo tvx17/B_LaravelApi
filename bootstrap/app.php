@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\SystemController;
+use App\Support\ApiExceptionResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -8,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,10 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function (): void {
-            Route::middleware('api')->get('/', fn () => response()->json([
-                'name' => 'LaravelAPI',
-                'status' => 'ok',
-            ]));
+            Route::middleware('api')->get('/', [SystemController::class, 'index']);
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -33,6 +33,11 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+            fn (Request $request) => $request->is('/', 'api', 'api/*') || $request->expectsJson(),
         );
+        $exceptions->respond(function (Response $response): Response {
+            return request()->is('/', 'api', 'api/*')
+                ? app(ApiExceptionResponse::class)->handle($response)
+                : $response;
+        });
     })->create();

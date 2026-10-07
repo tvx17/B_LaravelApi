@@ -215,6 +215,16 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Konvention in README dokumentiert; vorhandenes `AGENTS.md` entsprechend der ursprünglichen Vorgabe nicht geändert.
 - Prüfungen: `php artisan test` vollständig bestanden (32 Tests, 117 Assertions); `php vendor/bin/pint --test` bestanden; `git diff --check` ohne Fehler. Bestehende HTTP-Tests prüfen die Action-Auflösung sowie bisheriges Login-/Logout-Verhalten über die unveränderten Routen.
 
+### 16. Einheitliche API-Antworten mit Trait und Enums eingerichtet
+
+- Bestätigt: HTTP-Status zusätzlich als `responseStatus` im JSON; `success()` und `error()` setzen den Boolean automatisch. Antwortstruktur: `code`, `status`, `data`, `responseStatus`; Code als fünfstelliger String zur Erhaltung führender Nullen.
+- `app/Traits/ApiResponse.php` erstellt: typisierter Backed-Enum-Code, optionale Daten, Standardstatus 200 bei Erfolg beziehungsweise 400 bei Fehler. Fünfstelligen String-Enum-Wert prüfen.
+- Enums unter `app/Enums/Api/`: `UserResponseCode` mit `05001`/`05002`; allgemeiner Nummernkreis `00` in `SystemResponseCode` für Status und zentrale Fehler. User-Nummernkreis vorbereitet, keine neue Login-API umgesetzt.
+- Status-Endpunkte von Closures auf `SystemController` mit methodeninjizierten `IndexAction`/`StatusAction` unter `app/Actions/Systems/` umgestellt. Actions erzeugen Antworten über den Trait.
+- `ApiExceptionResponse` und Exception-Response-Hook in `bootstrap/app.php` ergänzt: Fehler für `/` und `/api/*` erhalten das gemeinsame Format; Validierungsdetails und relevante HTTP-Header bleiben erhalten. Serverfehler werden auch bei Debug ohne interne Details ausgegeben. Browser- und Paketprotokolle sowie `/up` unverändert.
+- API-Tests auf neue Struktur angepasst und um führende Nullen, automatische Statuswerte, Root-Antwort, Validierung, 401, 429-Header und vertrauliche 500-Details ergänzt. Gezielt 8 Tests mit 37 Assertions bestanden. Vollständige Suite: 38 Tests, 146 Assertions bestanden; `php vendor/bin/pint --test` und `git diff --check` erfolgreich.
+- README um Format, Enum-Verzeichnis, Codes, Aufrufbeispiele und Geltungsbereich ergänzt. Fachliche Nummernkreise und weitere Ereigniscodes bei späterem Ausbau festlegen.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen

@@ -26,8 +26,8 @@ php artisan serve
 
 Erreichbar unter `http://127.0.0.1:8000`:
 
-- `GET /`: Anwendungsname und Status als JSON.
-- `GET /api/status`: `{"status":"ok"}` als JSON.
+- `GET /`: Anwendungsname und Status im gemeinsamen API-Antwortformat.
+- `GET /api/status`: Status im gemeinsamen API-Antwortformat.
 - `GET /up`: Laravel-Healthcheck.
 
 Unbekannte API-Routen liefern HTTP 404 als JSON, auch ohne Accept-Header. Die Status-Endpunkte benötigen keine Datenbank.
@@ -157,6 +157,25 @@ php artisan route:list --path=api
 ```
 
 Tests verwenden SQLite im Arbeitsspeicher. API-Tests liegen in `tests/Feature/ApiTest.php`, Anwendungslogik in `app/`, API-Routen in `routes/api.php`.
+
+## API-Antwortformat
+
+Eigene API-Actions verwenden den Trait `App\Traits\ApiResponse`. Jede Antwort enthält `code` (fünfstelliger String), `status` (Boolean), `data` und `responseStatus` (zusätzlich zum tatsächlichen HTTP-Status).
+
+```php
+return $this->success(UserResponseCode::LoginSuccessful, $data);
+return $this->error(UserResponseCode::CredentialsError, null, 401);
+```
+
+`success()` setzt `status=true` und standardmäßig HTTP 200; `error()` setzt `status=false` und standardmäßig HTTP 400. Beide akzeptieren einen String-backed Enum-Code, optionale Daten und den HTTP-Status. Daten dürfen auch `null` sein.
+
+Enums liegen in `app/Enums/Api/`. Die ersten zwei Ziffern identifizieren den Bereich, die letzten drei das Ereignis. `UserResponseCode`: `05001` für `LoginSuccessful`, `05002` für `CredentialsError`. `SystemResponseCode` verwendet `00` für allgemeinen Erfolg und HTTP-Fehler, z. B. `00404` für eine unbekannte Route. Codes stets als Strings behandeln.
+
+```json
+{"code":"00001","status":true,"data":{"status":"ok"},"responseStatus":200}
+```
+
+Die eigenen JSON-Endpunkte `/` und `/api/*` sowie deren zentral behandelte Fehler nutzen dieses Format. Validierungsfehler stehen in `data.errors`, Fehlermeldungen in `data.message`; HTTP-Header wie `Retry-After` bleiben erhalten. Serverfehler geben keine internen Exception-Details aus. Browser-/Filament-/Runner-Antworten und der Laravel-Healthcheck `/up` behalten ihr jeweiliges Protokoll. Die User-Codes sind vorbereitet; es wurde keine API-Login-Route angelegt.
 
 ## Controller und Actions
 
