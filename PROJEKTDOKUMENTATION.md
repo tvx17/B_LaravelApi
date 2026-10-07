@@ -19,6 +19,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | Thema | Stand |
 | --- | --- |
 | Ziel | Laravel-API als Basis; fachlicher Umfang wird später spezifiziert |
+| Controller-Architektur | Router-Methoden delegieren an per Methodensignatur injizierte Actions unter `app/Actions/<Controllerbereich>/` |
 | Framework | Laravel 13.35.0 laut `composer.lock`; PHP-Anforderung ab 8.3 |
 | Lokale Umgebung | Windows/PowerShell; bei Einrichtung PHP 8.5.6 und Composer 2.9.8 |
 | Datenbank | Aktuell SQLite, später MariaDB |
@@ -205,6 +206,14 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - `Resume-Sitzung.ps1` im Projektstamm angelegt: startet standardmäßig genau diese Sitzung, unterstützt `-SessionId`, `-Auswahl` und `-WhatIf`. Projektpfad wird aus dem Skriptstandort ermittelt, Codex-Verfügbarkeit geprüft und das ursprüngliche Arbeitsverzeichnis nach Ende wiederhergestellt. Keine Rechte-, Modell- oder Sandbox-Vorgaben überschrieben.
 - README um Verwendung und Voraussetzung eines erhaltenen lokalen Sitzungsverlaufs ergänzt. Keine Laravel-Dienste gestartet.
 - Prüfungen: PowerShell-Parser ohne Syntaxfehler; Standardaufruf und `-Auswahl` mit `-WhatIf` erfolgreich. Die interaktive Wiederaufnahme wurde nicht ausgeführt, um keine zweite laufende Sitzung zu starten. Laravel-Code unverändert, deshalb keine erneute Laravel-Testsuite nötig.
+
+### 15. Controller-Logik in Actions ausgelagert
+
+- Benutzerkonvention übernommen: eigene Controller enthalten nur Router-Methoden; Actions werden in der Methodensignatur injiziert und über `handle()` aufgerufen. Ablage unter `app/Actions/<Controllerbereich>/<Methodenname>Action.php`; Controllerbereich ohne `Controller` im Plural, z. B. `Users` oder `Sessions`.
+- Controller und Routen geprüft: einziger eigener konkreter Controller ist `Auth/SessionController`. Seine Methoden `create`, `store`, `destroy` delegieren nun an `CreateAction`, `StoreAction`, `DestroyAction` in `app/Actions/Sessions/`.
+- Validierung, Authentifizierung, Session-Erneuerung, Logout und Antworten unverändert in die Actions übertragen. Vorhandene Routen und Middleware beibehalten; Paketcontroller nicht verändert. Kein Container-Binding erforderlich.
+- Konvention in README dokumentiert; vorhandenes `AGENTS.md` entsprechend der ursprünglichen Vorgabe nicht geändert.
+- Prüfungen: `php artisan test` vollständig bestanden (32 Tests, 117 Assertions); `php vendor/bin/pint --test` bestanden; `git diff --check` ohne Fehler. Bestehende HTTP-Tests prüfen die Action-Auflösung sowie bisheriges Login-/Logout-Verhalten über die unveränderten Routen.
 
 ## Betrieb und wichtige Befehle
 

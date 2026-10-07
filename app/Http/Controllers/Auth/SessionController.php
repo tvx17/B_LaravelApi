@@ -2,44 +2,28 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\Sessions\CreateAction;
+use App\Actions\Sessions\DestroyAction;
+use App\Actions\Sessions\StoreAction;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SessionController extends Controller
 {
-    public function create(): View
+    public function create(CreateAction $action): View
     {
-        return view('auth.login');
+        return $action->handle();
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, StoreAction $action): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['required', 'string'],
-        ]);
-
-        if (! Auth::guard('web')->attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'email' => 'E-Mail-Adresse oder Passwort ist ungültig.',
-            ]);
-        }
-
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('runner.dashboard'));
+        return $action->handle($request);
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request, DestroyAction $action): RedirectResponse
     {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('login');
+        return $action->handle($request);
     }
 }

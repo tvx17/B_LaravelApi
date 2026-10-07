@@ -158,6 +158,21 @@ php artisan route:list --path=api
 
 Tests verwenden SQLite im Arbeitsspeicher. API-Tests liegen in `tests/Feature/ApiTest.php`, Anwendungslogik in `app/`, API-Routen in `routes/api.php`.
 
+## Controller und Actions
+
+Eigene Controller enthalten ausschließlich die vom Router aufgerufenen Methoden. Jede Methode erhält ihre Action per typisierter Methodeninjektion und gibt deren `handle()`-Ergebnis zurück. Die Logik einschließlich Validierung und Antworterzeugung liegt in der Action.
+
+Actions liegen unter `app/Actions/<Controllerbereich>/`. Der Bereich ist der Controllername ohne `Controller` im Plural, beispielsweise `UserController` → `Users`, `SessionController` → `Sessions`. Der Klassenname entspricht der Methode in PascalCase mit dem Zusatz `Action`: `login` → `LoginAction`, `store` → `StoreAction`.
+
+```php
+public function store(Request $request, StoreAction $action): RedirectResponse
+{
+    return $action->handle($request);
+}
+```
+
+Die vorhandene Session-Anmeldung nutzt `app/Actions/Sessions/`. Konkrete Action-Klassen werden automatisch durch Laravels Container aufgelöst; kein manuelles `new` oder zusätzliches Binding nötig. Controller erhalten keine Hilfsmethoden mit Anwendungslogik. Für neue Controller dasselbe Muster verwenden.
+
 ## Konfiguration
 
 Lokale Einstellungen stehen in `.env`, Standardwerte in `.env.example`. `.env` und `vendor/` sind vom Git-Tracking ausgeschlossen. Keine Zugangsdaten einchecken. Auf produktiven Systemen `APP_DEBUG=false` setzen.
