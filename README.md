@@ -24,9 +24,34 @@ Unbekannte API-Routen liefern HTTP 404 als JSON, auch ohne Accept-Header. Die St
 composer install
 Copy-Item .env.example .env
 php artisan key:generate
+New-Item -ItemType File -Path database/database.sqlite -ErrorAction SilentlyContinue
+php artisan migrate
 ```
 
-Datenbankwahl und Authentifizierung sind noch offen. Die Vorlage verwendet vorläufig SQLite als Konfigurationswert; Migrationen wurden nicht ausgeführt. Vor `php artisan migrate` die gewünschte Datenbank in `.env` konfigurieren. Ein Frontend-Build ist für die API nicht erforderlich.
+Aktuell verwenden wir SQLite (`DB_CONNECTION=sqlite`); MariaDB ist später vorgesehen. Die lokale Datenbank liegt in `database/database.sqlite` und wird nicht eingecheckt. Die Anmeldung ist noch offen. Ein Frontend-Build ist für die API nicht erforderlich.
+
+## Rollen und Berechtigungen
+
+Spatie Laravel Permission ist im User-Modell integriert. Konfiguration: `config/permission.php`. Die Migration erstellt Rollen, Berechtigungen und deren Zuordnungstabellen; fachliche Rollen und Rechte werden noch nicht angelegt.
+
+Beispiel für die spätere Verwendung in PHP:
+
+```php
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
+$permission = Permission::findOrCreate('users.view', 'web');
+$role = Role::findOrCreate('reader', 'web');
+$role->givePermissionTo($permission);
+$user->assignRole($role);
+$user->can('users.view');
+```
+
+Der aktuell konfigurierte Guard heißt `web`. Verwende bei Rollen und Berechtigungen denselben Guard wie bei den Benutzern. Spatie regelt Berechtigungen; die Anmeldung wird separat ergänzt. Verfügbar sind die Middleware-Aliase `permission`, `role` und `role_or_permission`; für einzelne Rechte ist auch Laravels `can`-Middleware nutzbar.
+
+Bei Änderungen über die Paketmethoden wird der Berechtigungscache automatisch aktualisiert. Bei manuellen Datenbankänderungen: `php artisan permission:cache-reset`.
+
+Für den späteren Wechsel auf MariaDB `DB_CONNECTION=mariadb` sowie `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` und `DB_PASSWORD` lokal konfigurieren, dann `php artisan config:clear` und `php artisan migrate` ausführen. Bestehende SQLite-Daten werden dabei nicht übertragen.
 
 ## Prüfung
 
