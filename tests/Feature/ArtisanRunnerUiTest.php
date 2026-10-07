@@ -41,6 +41,8 @@ class ArtisanRunnerUiTest extends TestCase
             ->assertJsonPath('exit_code', 0)
             ->assertJsonStructure(['output']);
         $this->postJson('/artisan-runner-ui/run', ['command' => 'db:wipe'])->assertForbidden();
+        $this->postJson('/artisan-runner-ui/run', ['command' => 'admin:grant-access', 'parameters' => ['email' => $user->email]])
+            ->assertForbidden();
     }
 
     public function test_authenticated_user_without_permission_cannot_access_runner(): void

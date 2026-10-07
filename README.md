@@ -6,6 +6,16 @@ Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben werden in [
 
 Windows-Eignung und Alternativen für Sicherungen: [BACKUP_PRUEFUNG.md](BACKUP_PRUEFUNG.md).
 
+## Codex-Sitzung wieder aufnehmen
+
+```powershell
+.\Resume-Sitzung.ps1
+```
+
+Das Skript nimmt diese Sitzung anhand ihrer gespeicherten ID im Projektverzeichnis wieder auf. Codex CLI muss im PATH verfügbar sein; der Verlauf muss im gleichen lokalen Codex-Profil erhalten sein. Mit `-Auswahl` stattdessen eine gespeicherte Projektsitzung auswählen, mit `-SessionId ID` eine andere Sitzung öffnen. `-WhatIf` zeigt den vorgesehenen Aufruf ohne Codex zu starten. Das Skript startet keine Laravel-Dienste.
+
+Grundlage: [offizielle Codex-Befehlsreferenz](https://learn.chatgpt.com/docs/developer-commands?surface=cli).
+
 ## Lokal starten
 
 Abhängigkeiten und lokaler Anwendungsschlüssel sind bereits eingerichtet.
@@ -98,6 +108,21 @@ php artisan telescope:prune --hours=48
 ```
 
 Der Befehl entfernt Aufzeichnungen, die älter als 48 Stunden sind. Eine automatische Bereinigung ist noch nicht eingerichtet. Bei einem neuen Checkout legt `php artisan migrate` auch die Telescope-Tabellen an.
+
+## Filament Admin-Panel
+
+Filament 5 ist unter `http://127.0.0.1:8000/admin` erreichbar, Anmeldung unter `/admin/login`. Panel-Konfiguration: `app/Providers/Filament/AdminPanelProvider.php`. Das Panel nutzt den vorhandenen `web`-Guard und benötigt in jeder Umgebung die Spatie-Berechtigung `access-admin-panel`.
+
+Ein Konto lokal interaktiv anlegen und anschließend gezielt freischalten:
+
+```powershell
+php artisan make:filament-user
+php artisan admin:grant-access admin@example.com
+```
+
+Alternativ nur den zweiten Befehl für einen bestehenden Benutzer ausführen. Kein Standardkonto wurde angelegt. Runner-Zugriff und Admin-Zugriff sind getrennte Berechtigungen. Die Befehle zur Kontoanlage und Admin-Freischaltung sind in der Runner UI gesperrt. Zugriff über Spaties `revokePermissionTo('access-admin-panel')` entziehen.
+
+Das Panel enthält zunächst nur das Dashboard; keine fachlichen Ressourcen oder öffentliche Registrierung. Bei neuen Checkouts werden die mitgelieferten Assets durch den Composer-Hook `php artisan filament:upgrade` veröffentlicht. Für das Standardpanel ist kein eigener Node-/Tailwind-Build nötig. Nach Paketupdates bei Bedarf denselben Befehl ausführen. [Offizielle Installation](https://filamentphp.com/docs/5.x/introduction/installation).
 
 ## Socialite
 

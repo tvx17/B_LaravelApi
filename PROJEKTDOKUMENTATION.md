@@ -31,6 +31,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | Registrierung | Keine öffentliche Registrierung |
 | OAuth | Laravel Socialite 5.31.0 als Grundlage; Anbieter und Login-Ablauf noch offen |
 | Medien | Spatie Media Library 11.23.9; Modellanbindung noch offen |
+| Admin-Panel | Filament 5.10.0 mit Livewire 4.4.7 unter `/admin`; Zugriff mit `access-admin-panel` |
 
 ## Arbeitsprotokoll: 07.10.2026
 
@@ -184,6 +185,26 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - `php artisan migrate --no-interaction` erfolgreich: `media`-Tabelle in der lokalen SQLite-Datenbank erstellt. Keine Bestandsdaten gelöscht. `MEDIA_DISK=public` und `IMAGE_DRIVER=gd` als Paketstandard in `.env.example` dokumentiert; lokale `.env` unverändert. Kein Storage-Link erstellt.
 - Prüfung: `composer check-platform-reqs` vollständig erfolgreich; `composer validate --no-check-publish` gültig, nur vorhandene Warnung zum unbegrenzten Spatie-Permission-Versionsbereich. `php artisan test`: 28 Tests, 106 Assertions bestanden. `php vendor/bin/pint --test` bestanden. Migrationstatus bestätigt; Tabelle, konfigurierte Disk/Bildtreiber und Media-Modell zusätzlich über Laravel-Bootstrap geprüft.
 - Offen: fachliches Modell, Collections, Zugriffsregeln, Dateitypen und Upload-API festlegen. Dateiablage und Konvertierungen mit dem gewählten Modell testen; derzeit kein realer Datei-Upload oder Konvertierungstest. Bei Kopia Dateien der Media-Disk zusammen mit der Datenbank berücksichtigen.
+
+### 13. Filament hinzugefügt
+
+- Offizielle Filament-5-Installation und Panel-Autorisierung geprüft. Composer löst Filament 5.10.0 und Livewire 4.4.7 mit Laravel 13 auf; keine bestehenden Pakete aktualisiert oder entfernt. `composer check-platform-reqs` bestätigt alle Anforderungen auf Windows, einschließlich Intl und ZIP.
+- `php C:/Apps/php/composer.phar require 'filament/filament:^5.0' --no-interaction` ausgeführt. Bekannte langsame optimierte Autoload-Erzeugung abgebrochen; anschließend Autoload wie in Schritt 12 vorübergehend ohne Optimierung erzeugt, ursprüngliche `composer.json` wiederhergestellt. Projektvorgabe `optimize-autoloader=true` bleibt erhalten.
+- `php artisan filament:install --panels --no-interaction` erfolgreich: `app/Providers/Filament/AdminPanelProvider.php` erzeugt und in `bootstrap/providers.php` registriert; Assets veröffentlicht, Cache geleert, Asset-Ausschlüsse in `.gitignore` und `filament:upgrade` im Composer-Hook ergänzt.
+- Admin-Panel unter `/admin` mit Login, Dashboard und Guard `web`. `User` implementiert `FilamentUser`; Panel-Zugang verlangt explizit die Spatie-Berechtigung `access-admin-panel`, auch lokal. Keine fachlichen Ressourcen, kein Standardkonto und keine öffentliche Registrierung hinzugefügt.
+- `admin:grant-access EMAIL` ergänzt: erteilt einem bestehenden Benutzer die Berechtigung, legt bei unbekannter E-Mail kein Konto an. Konto bei Bedarf lokal mit `make:filament-user` anlegen. Beide Befehle in der Runner UI gesperrt; Runner-Recht allein erlaubt keinen Admin-Zugang.
+- README um Nutzung, Freischaltung, Asset-Veröffentlichung und Rechteentzug ergänzt. Plattformabhängige Zusatzprodukte wurden nicht installiert; Standardpanel nutzt mitgelieferte Assets ohne eigenen Frontend-Build.
+- Feature-Tests für Gastzugriff/Loginseite, verweigerten Runner-Benutzer, freigeschalteten Admin und unbekannten Benutzer ergänzt; zusätzlich Runner-Sperre für Admin-Freischaltung geprüft. Vollständige Suite: 32 Tests, 116 Assertions bestanden. Danach Filament-Tests (4 Tests, 10 Assertions) und Runner-Tests nach der Sperrlistenänderung (7 Tests, 22 Assertions) gezielt erfolgreich geprüft.
+- Pint meldete zunächst die vom Installer erzeugte Formatierung in `bootstrap/providers.php`; mit `php vendor/bin/pint bootstrap/providers.php` korrigiert. Abschließendes `php vendor/bin/pint --test` bestanden. `composer validate --no-check-publish` erfolgreich mit der bestehenden Spatie-Permission-Warnung; `php artisan route:list --path=admin` bestätigt Dashboard, Login und Logout. Browser-Interaktion wurde noch nicht geprüft.
+- Offen: Betreiberkonto anlegen/freischalten, Browser-Anmeldung prüfen; fachliche Ressourcen und Policies erst nach Spezifikation erstellen. Socialite bleibt ohne Anbieter, Media Library ohne Modellanbindung.
+
+### 14. PowerShell-Skript zum Wiederaufnehmen der Sitzung erstellt
+
+- OpenAI-Docs-Skill verwendet, offizielle Codex-Befehlsreferenz geöffnet und installierten Aufruf über `codex resume --help` geprüft. Die Hilfe meldete eingeschränkten Zugriff auf Codex-Temporärverzeichnisse innerhalb der Sandbox; der Hilfeaufruf selbst war erfolgreich.
+- Aktuelle Sitzungs-ID gezielt aus `CODEX_THREAD_ID`/`CODEX_SESSION_ID` ermittelt; keine Zugangsdaten oder vollständigen Umgebungsvariablen ausgegeben.
+- `Resume-Sitzung.ps1` im Projektstamm angelegt: startet standardmäßig genau diese Sitzung, unterstützt `-SessionId`, `-Auswahl` und `-WhatIf`. Projektpfad wird aus dem Skriptstandort ermittelt, Codex-Verfügbarkeit geprüft und das ursprüngliche Arbeitsverzeichnis nach Ende wiederhergestellt. Keine Rechte-, Modell- oder Sandbox-Vorgaben überschrieben.
+- README um Verwendung und Voraussetzung eines erhaltenen lokalen Sitzungsverlaufs ergänzt. Keine Laravel-Dienste gestartet.
+- Prüfungen: PowerShell-Parser ohne Syntaxfehler; Standardaufruf und `-Auswahl` mit `-WhatIf` erfolgreich. Die interaktive Wiederaufnahme wurde nicht ausgeführt, um keine zweite laufende Sitzung zu starten. Laravel-Code unverändert, deshalb keine erneute Laravel-Testsuite nötig.
 
 ## Betrieb und wichtige Befehle
 
