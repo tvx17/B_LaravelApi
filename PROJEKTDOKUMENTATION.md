@@ -30,6 +30,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | API-Anmeldung | Noch keine Sanctum- oder andere Token-Anmeldung |
 | Registrierung | Keine öffentliche Registrierung |
 | OAuth | Laravel Socialite 5.31.0 als Grundlage; Anbieter und Login-Ablauf noch offen |
+| Medien | Spatie Media Library 11.23.9; Modellanbindung noch offen |
 
 ## Arbeitsprotokoll: 07.10.2026
 
@@ -170,6 +171,19 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Versionsbereich abschließend auf `^5.31` begrenzt. Ein Versuch ohne Netzwerkfreigabe scheiterte an Packagist und wurde von Composer zurückgerollt; Wiederholung mit freigegebenem Netzwerk erfolgreich. Wegen Weitergabe des Caret-Zeichens durch `composer.bat` abschließend direkt `php C:/Apps/php/composer.phar require 'laravel/socialite:^5.31' --no-interaction` verwendet. Composer-Skripte und Paketregistrierung erfolgreich; keine Sicherheitswarnungen gefunden.
 - Prüfungen: `composer check-platform-reqs` vollständig erfolgreich unter Windows; `php artisan test`: 28 Tests, 106 Assertions bestanden. Socialite-Factory zusätzlich direkt im Laravel-Container aufgelöst. Kein echter OAuth-Aufruf geprüft, da Anbieter und Zugangsdaten fehlen.
 - Offen: Anbieter auswählen, OAuth-App und Callback-URL konfigurieren, Browser-/API-Ablauf sowie Kontoverknüpfung entscheiden und anschließend Redirect/Callback einschließlich Fehlerfällen testen. Keine automatische Runner-Berechtigung vergeben.
+
+### 12. Spatie Media Library hinzugefügt
+
+- Benutzer bestätigt: Socialite vorerst ohne Anbieter belassen. Keine OAuth-Konfiguration ergänzt.
+- Offizielle Media-Library-Anforderungen und Laravel-13-Kompatibilität geprüft. Lokale PHP-Erweiterungen EXIF, GD und Imagick vorhanden; Composer-Plattformprüfung erfolgreich. Die Basiseinrichtung benötigt kein Linux-only-Produkt. Zusätzliche Programme für PDF/SVG/Video und Bildoptimierung wurden nicht installiert oder geprüft.
+- `php C:/Apps/php/composer.phar require 'spatie/laravel-medialibrary:^11.0' --no-interaction` ausgeführt; Version 11.23.9 und fünf Abhängigkeiten ausgewählt, keine bestehenden Pakete aktualisiert oder entfernt. Composer-Manifeste aktualisiert.
+- Rückfrage zur reinen Grundlage oder direkten User-Anbindung gestellt; Modellanbindung noch offen.
+- README um Speicherung, Modellanbindung, Queue, Windows-Zusatzwerkzeuge und Kopia-Umfang ergänzt.
+- Die optimierte Autoload-Erzeugung blieb mehrere Minuten ohne Ausgabe; auch ein Versuch ohne Xdebug brachte keinen Abschluss. Eigene laufende Composer-Prozesse abgebrochen. Für einen erfolgreichen `dump-autoload` wurde `optimize-autoloader` vorübergehend deaktiviert und `composer.json` anschließend vollständig wiederhergestellt; die Projektvorgabe bleibt `true`. Die Ursache ist nicht abschließend geklärt, künftige optimierte Composer-Läufe bei Bedarf prüfen.
+- Ein vor Abschluss der Paketregistrierung ausgeführter Publish-Versuch fand keine Ressourcen. Nach erfolgreicher Registrierung `php artisan vendor:publish --provider='Spatie\MediaLibrary\MediaLibraryServiceProvider' --tag=medialibrary-migrations --tag=medialibrary-config` erneut ausgeführt: `config/media-library.php` und `database/migrations/2026_10_07_082753_create_media_table.php` angelegt.
+- `php artisan migrate --no-interaction` erfolgreich: `media`-Tabelle in der lokalen SQLite-Datenbank erstellt. Keine Bestandsdaten gelöscht. `MEDIA_DISK=public` und `IMAGE_DRIVER=gd` als Paketstandard in `.env.example` dokumentiert; lokale `.env` unverändert. Kein Storage-Link erstellt.
+- Prüfung: `composer check-platform-reqs` vollständig erfolgreich; `composer validate --no-check-publish` gültig, nur vorhandene Warnung zum unbegrenzten Spatie-Permission-Versionsbereich. `php artisan test`: 28 Tests, 106 Assertions bestanden. `php vendor/bin/pint --test` bestanden. Migrationstatus bestätigt; Tabelle, konfigurierte Disk/Bildtreiber und Media-Modell zusätzlich über Laravel-Bootstrap geprüft.
+- Offen: fachliches Modell, Collections, Zugriffsregeln, Dateitypen und Upload-API festlegen. Dateiablage und Konvertierungen mit dem gewählten Modell testen; derzeit kein realer Datei-Upload oder Konvertierungstest. Bei Kopia Dateien der Media-Disk zusammen mit der Datenbank berücksichtigen.
 
 ## Betrieb und wichtige Befehle
 

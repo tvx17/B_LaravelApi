@@ -107,6 +107,18 @@ Ein OAuth-Anbieter und Login-/Callback-Routen sind noch nicht eingerichtet. Nach
 
 Vor Umsetzung festlegen, ob Socialite die Browser-Anmeldung oder die API-Anmeldung ergänzen soll und wie externe Konten mit Benutzern verknüpft werden. Socialite allein stellt keine API-Tokens aus und vergibt keine Runner-Berechtigung.
 
+## Spatie Media Library
+
+Die kostenlose Spatie Media Library ist als Grundlage installiert. Konfiguration: `config/media-library.php`; die veröffentlichte Migration erstellt die Tabelle `media`. Bei einem neuen Checkout `php artisan migrate` ausführen.
+
+Die Standardablage ist die Disk `public` unter `storage/app/public`; `MEDIA_DISK` kann eine andere Disk aus `config/filesystems.php` wählen. Die Dateigrößengrenze beträgt standardmäßig 10 MB. Für öffentliche URLs erst bei Bedarf `php artisan storage:link` ausführen; unter Windows können dafür entsprechende Rechte erforderlich sein.
+
+Noch kein Anwendungsmodell und keine Upload-Route angebunden. Das gewünschte Modell muss `Spatie\MediaLibrary\HasMedia` implementieren und `Spatie\MediaLibrary\InteractsWithMedia` verwenden. Vor API-Uploads Dateitypen, Größen, Berechtigungen und öffentliche oder private Ablage festlegen.
+
+GD ist als Bildtreiber konfiguriert und lokal vorhanden. Konvertierungen laufen standardmäßig über die Datenbank-Queue (`php artisan queue:work`). PDF-/SVG-Vorschaubilder benötigen zusätzliche Werkzeuge, Video-Vorschaubilder FFmpeg; deren Windows-Installation und Pfade erst vor Nutzung prüfen. Es wurden keine Konvertierungen eingerichtet. [Offizielle Anforderungen](https://spatie.be/docs/laravel-medialibrary/v11/requirements).
+
+Kopia muss später sowohl die zugehörigen Dateien als auch die Datenbank sichern; die Tabelle `media` allein enthält nicht die Dateien.
+
 ## Backups mit Kopia
 
 KopiaUI ist lokal unter Windows installiert; Sicherung und Wiederherstellung mit temporären Dateien wurden geprüft. Ziel, Umfang und automatische Datenbank-Vorbereitung stehen noch aus. Details: [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).
