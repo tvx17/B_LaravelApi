@@ -99,6 +99,14 @@ php artisan telescope:prune --hours=48
 
 Der Befehl entfernt Aufzeichnungen, die älter als 48 Stunden sind. Eine automatische Bereinigung ist noch nicht eingerichtet. Bei einem neuen Checkout legt `php artisan migrate` auch die Telescope-Tabellen an.
 
+## Socialite
+
+Laravel Socialite ist als reguläre Abhängigkeit installiert und wird automatisch von Laravel registriert. Einrichtung nach der [offiziellen Dokumentation](https://laravel.com/framework/docs/socialite).
+
+Ein OAuth-Anbieter und Login-/Callback-Routen sind noch nicht eingerichtet. Nach Auswahl des Anbieters dessen `client_id`, `client_secret` und `redirect` in `config/services.php` mit Werten aus `.env` konfigurieren; Platzhalter in `.env.example` dokumentieren. Die Callback-URL muss mit der beim Anbieter registrierten URL übereinstimmen. Zugangsdaten ausschließlich lokal hinterlegen.
+
+Vor Umsetzung festlegen, ob Socialite die Browser-Anmeldung oder die API-Anmeldung ergänzen soll und wie externe Konten mit Benutzern verknüpft werden. Socialite allein stellt keine API-Tokens aus und vergibt keine Runner-Berechtigung.
+
 ## Backups mit Kopia
 
 KopiaUI ist lokal unter Windows installiert; Sicherung und Wiederherstellung mit temporären Dateien wurden geprüft. Ziel, Umfang und automatische Datenbank-Vorbereitung stehen noch aus. Details: [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).

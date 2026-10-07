@@ -29,6 +29,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | Runner-Zugriff | Berechtigung `run-artisan-runner-ui` |
 | API-Anmeldung | Noch keine Sanctum- oder andere Token-Anmeldung |
 | Registrierung | Keine öffentliche Registrierung |
+| OAuth | Laravel Socialite 5.31.0 als Grundlage; Anbieter und Login-Ablauf noch offen |
 
 ## Arbeitsprotokoll: 07.10.2026
 
@@ -159,6 +160,16 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Isoliertes verschlüsseltes Test-Repository erstellt, eine Testdatei gesichert und in einen neuen Testordner wiederhergestellt. SHA256-Prüfsummen identisch; Testdaten, Repository, Cache und Konfiguration anschließend entfernt. Kein echtes Backup und keine Änderung der Anwendungsdatenbank.
 - `KOPIA_SETUP.md` angelegt, `BACKUP_PRUEFUNG.md` und README aktualisiert. Anwendungs-Code unverändert; deshalb keine erneuten Laravel-Tests erforderlich.
 - Zielpfad beziehungsweise Anbieter und Umfang per Rückfrage angefordert; Antworten stehen aus. Echtes Repository, SQLite-Vorbereitung, Zeitplanung, Aufbewahrung und vollständiger Restore-Test bleiben offen. Passwort ausschließlich lokal in KopiaUI eingeben.
+
+### 11. Laravel Socialite hinzugefügt
+
+- Offizielle Socialite-Dokumentation und Paket-Kompatibilität mit Laravel 13 geprüft. Installation mit `composer require laravel/socialite --no-interaction`; `composer.json` und `composer.lock` aktualisiert.
+- Socialite 5.31.0 und vier neue Abhängigkeiten installiert: `firebase/php-jwt`, `league/oauth1-client`, `paragonie/constant_time_encoding` und `phpseclib/phpseclib`. Keine bestehenden Pakete aktualisiert oder entfernt.
+- Rückfrage nach zunächst reiner Installation oder gewünschtem Login-Anbieter gestellt. Ohne Auswahl keine Anbieter-Zugangsdaten, Routen oder Benutzerverknüpfung eingerichtet. README um Einrichtungshinweise ergänzt.
+- Erster Composer-Lauf brach ohne Diagnose bei der Autoload-Erzeugung ab; `composer dump-autoload --no-interaction -v` stellte Autoload und Paketregistrierung erfolgreich fertig. Eine zwischenzeitliche Containerprüfung vor Abschluss schlug wegen fehlender Autoload-Einträge fehl; nach Abschluss löst der Container korrekt `Laravel\Socialite\SocialiteManager` auf.
+- Versionsbereich abschließend auf `^5.31` begrenzt. Ein Versuch ohne Netzwerkfreigabe scheiterte an Packagist und wurde von Composer zurückgerollt; Wiederholung mit freigegebenem Netzwerk erfolgreich. Wegen Weitergabe des Caret-Zeichens durch `composer.bat` abschließend direkt `php C:/Apps/php/composer.phar require 'laravel/socialite:^5.31' --no-interaction` verwendet. Composer-Skripte und Paketregistrierung erfolgreich; keine Sicherheitswarnungen gefunden.
+- Prüfungen: `composer check-platform-reqs` vollständig erfolgreich unter Windows; `php artisan test`: 28 Tests, 106 Assertions bestanden. Socialite-Factory zusätzlich direkt im Laravel-Container aufgelöst. Kein echter OAuth-Aufruf geprüft, da Anbieter und Zugangsdaten fehlen.
+- Offen: Anbieter auswählen, OAuth-App und Callback-URL konfigurieren, Browser-/API-Ablauf sowie Kontoverknüpfung entscheiden und anschließend Redirect/Callback einschließlich Fehlerfällen testen. Keine automatische Runner-Berechtigung vergeben.
 
 ## Betrieb und wichtige Befehle
 
