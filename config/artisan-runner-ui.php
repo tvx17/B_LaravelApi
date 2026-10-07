@@ -4,7 +4,7 @@ return [
     // Master switch. Off unless explicitly enabled.
     'enabled' => env('ARTISAN_RUNNER_UI_ENABLED', false),
 
-    'path' => env('ARTISAN_RUNNER_UI_PATH', 'artisan-runner-ui'),
+    'path' => 'artisan',
 
     'middleware' => ['web', 'auth:web', 'can:run-artisan-runner-ui'],
 

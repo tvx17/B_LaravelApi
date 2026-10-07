@@ -32,7 +32,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | Registrierung | Keine öffentliche Registrierung |
 | OAuth | Laravel Socialite 5.31.0 als Grundlage; Anbieter und Login-Ablauf noch offen |
 | Medien | Spatie Media Library 11.23.9; Modellanbindung noch offen |
-| Admin-Panel | Filament 5.10.0 mit Livewire 4.4.7 unter `/admin`; Zugriff mit `access-admin-panel` |
+| Admin-Panel | Filament 5.10.0 mit Livewire 4.4.7 unter `/filament`; Zugriff mit `access-admin-panel` |
 
 ## Arbeitsprotokoll: 07.10.2026
 
@@ -225,6 +225,16 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - API-Tests auf neue Struktur angepasst und um führende Nullen, automatische Statuswerte, Root-Antwort, Validierung, 401, 429-Header und vertrauliche 500-Details ergänzt. Gezielt 8 Tests mit 37 Assertions bestanden. Vollständige Suite: 38 Tests, 146 Assertions bestanden; `php vendor/bin/pint --test` und `git diff --check` erfolgreich.
 - README um Format, Enum-Verzeichnis, Codes, Aufrufbeispiele und Geltungsbereich ergänzt. Fachliche Nummernkreise und weitere Ereigniscodes bei späterem Ausbau festlegen.
 
+### 17. Filament- und Runner-Routen getrennt organisiert
+
+- Benutzerwunsch: Filament unter `/filament`, Artisan Runner UI unter `/artisan`, mit zugehörigen Panel-/Runner-Routen unter dem jeweiligen Präfix.
+- `AdminPanelProvider` auf Pfad `filament` umgestellt. Panel-ID `admin` und Routennamen bleiben erhalten, damit die vorhandene Autorisierung weiter greift.
+- Runner-Paketpfad fest auf `artisan` gesetzt; veraltetes `ARTISAN_RUNNER_UI_PATH` aus `.env.example` und lokaler `.env` entfernt. Die lokale Aktivierung unverändert gelassen, keine Zugangsdaten ausgegeben.
+- Eigene Session-Routen nach `/artisan/login`, `/artisan/account`, `/artisan/logout` verschoben. Paketoberfläche `/artisan`, Ausführung `/artisan/run`. Benannte Routen und Links lösen automatisch die neuen Pfade auf. CLI-Hinweise und README aktualisiert.
+- `php artisan config:clear` und `php artisan route:clear` ausgeführt. Bestehende Authentifizierung, CSRF-Schutz und getrennte Spatie-Berechtigungen beibehalten.
+- Session-, Filament- und Runner-Tests auf neue URLs umgestellt; zusätzlichen Test für eindeutige Präfixe und nicht mehr erreichbare alte URLs ergänzt. Vollständige Suite: 39 Tests, 159 Assertions bestanden. `php vendor/bin/pint --test` und `git diff --check` erfolgreich. Routenlisten bestätigen sechs Runner-Routen unter `artisan` sowie Filament-Panel-/Download-Routen unter `filament` ohne Überschneidung.
+- Laravel-/Livewire-Infrastruktur und statische Paketassets behalten ihre paketweiten Pfade; diese sind keine eigenen Panel- oder Runner-Fachrouten. Keine Paketdateien verändert.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen
@@ -234,7 +244,7 @@ php artisan runner:create-user admin@example.com --name="Administrator"
 php artisan serve
 ```
 
-Die E-Mail ist ein Beispiel. Passwort erst in der verdeckten Abfrage eingeben. Danach `http://127.0.0.1:8000/login` öffnen. Bei aktiviertem Runner und zugewiesenem Recht führt der Kontobereich zur Oberfläche.
+Die E-Mail ist ein Beispiel. Passwort erst in der verdeckten Abfrage eingeben. Danach `http://127.0.0.1:8000/artisan/login` öffnen. Bei aktiviertem Runner und zugewiesenem Recht führt der Kontobereich zur Oberfläche.
 
 ### Änderungen prüfen
 
