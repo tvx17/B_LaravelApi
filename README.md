@@ -2,6 +2,8 @@
 
 Eine minimale API-Basis mit Laravel 13 und PHP ab 8.3.
 
+Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben werden in [PROJEKTDOKUMENTATION.md](PROJEKTDOKUMENTATION.md) fortlaufend festgehalten.
+
 ## Lokal starten
 
 Abhängigkeiten und lokaler Anwendungsschlüssel sind bereits eingerichtet.
@@ -28,7 +30,7 @@ New-Item -ItemType File -Path database/database.sqlite -ErrorAction SilentlyCont
 php artisan migrate
 ```
 
-Aktuell verwenden wir SQLite (`DB_CONNECTION=sqlite`); MariaDB ist später vorgesehen. Die lokale Datenbank liegt in `database/database.sqlite` und wird nicht eingecheckt. Die Anmeldung ist noch offen. Ein Frontend-Build ist für die API nicht erforderlich.
+Aktuell verwenden wir SQLite (`DB_CONNECTION=sqlite`); MariaDB ist später vorgesehen. Die lokale Datenbank liegt in `database/database.sqlite` und wird nicht eingecheckt. Die Runner UI verwendet eine Browser-Anmeldung. Ein Frontend-Build ist für die API nicht erforderlich.
 
 ## Rollen und Berechtigungen
 
@@ -47,11 +49,37 @@ $user->assignRole($role);
 $user->can('users.view');
 ```
 
-Der aktuell konfigurierte Guard heißt `web`. Verwende bei Rollen und Berechtigungen denselben Guard wie bei den Benutzern. Spatie regelt Berechtigungen; die Anmeldung wird separat ergänzt. Verfügbar sind die Middleware-Aliase `permission`, `role` und `role_or_permission`; für einzelne Rechte ist auch Laravels `can`-Middleware nutzbar.
+Der aktuell konfigurierte Guard heißt `web`. Verwende bei Rollen und Berechtigungen denselben Guard wie bei den Benutzern. Verfügbar sind die Middleware-Aliase `permission`, `role` und `role_or_permission`; für einzelne Rechte ist auch Laravels `can`-Middleware nutzbar.
 
 Bei Änderungen über die Paketmethoden wird der Berechtigungscache automatisch aktualisiert. Bei manuellen Datenbankänderungen: `php artisan permission:cache-reset`.
 
 Für den späteren Wechsel auf MariaDB `DB_CONNECTION=mariadb` sowie `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME` und `DB_PASSWORD` lokal konfigurieren, dann `php artisan config:clear` und `php artisan migrate` ausführen. Bestehende SQLite-Daten werden dabei nicht übertragen.
+
+## Artisan Runner UI
+
+`codesquirrel/artisan-runner-ui` ist installiert. Die Konfiguration liegt in `config/artisan-runner-ui.php`. Lokal ist die UI aktiviert. Neue Checkouts starten mit `ARTISAN_RUNNER_UI_ENABLED=false`; zum Aktivieren den Wert in `.env` auf `true` setzen und `php artisan config:clear` ausführen.
+
+Die Oberfläche liegt unter `/artisan-runner-ui`. Anmeldung: `/login`; Konto und Abmeldung: `/runner`. Die Middleware `web`, `auth:web` und `can:run-artisan-runner-ui` schützt sowohl die Oberfläche als auch die Befehlsausführung. Die Paketkonfiguration erlaubt ausschließlich die Umgebungen `local`, `qa`, `staging` und `uat`.
+
+Die Listen `allowed` und `denied` steuern verfügbare Befehle. Die Oberfläche benötigt keinen Frontend-Build und keine zusätzliche Migration. Die veröffentlichte Blade-Ansicht enthält einen Link zum Konto; bei Paketupdates Änderungen an der Originalansicht prüfen.
+
+## Zugangsbenutzer anlegen
+
+```powershell
+php artisan runner:create-user admin@example.com --name="Administrator"
+```
+
+Der Befehl fragt das Passwort verdeckt inklusive Bestätigung ab (mindestens 12 Zeichen), speichert es gehasht und vergibt ausschließlich die Berechtigung `run-artisan-runner-ui` für den Guard `web`. Bereits vorhandene Benutzer werden nicht geändert. Es gibt keine öffentliche Registrierung und keine automatisch erzeugten Standardzugänge. Der Befehl ist in der Runner UI gesperrt.
+
+Bestehenden Benutzern kann die Berechtigung über Spatie vergeben oder entzogen werden:
+
+```php
+$permission = Permission::findOrCreate('run-artisan-runner-ui', 'web');
+$user->givePermissionTo($permission);
+$user->revokePermissionTo($permission);
+```
+
+Die Anmeldung verwendet Sessions, CSRF-Schutz und begrenzte Anmeldeversuche. Beim Anmelden wird die Session-ID erneuert; beim Abmelden werden Session und CSRF-Token erneuert. Eine API-Token-Anmeldung ist noch nicht eingerichtet.
 
 ## Prüfung
 
