@@ -81,6 +81,22 @@ $user->revokePermissionTo($permission);
 
 Die Anmeldung verwendet Sessions, CSRF-Schutz und begrenzte Anmeldeversuche. Beim Anmelden wird die Session-ID erneuert; beim Abmelden werden Session und CSRF-Token erneuert. Eine API-Token-Anmeldung ist noch nicht eingerichtet.
 
+## Laravel Telescope
+
+Telescope ist als Entwicklungsabhängigkeit installiert und wird ausschließlich in `APP_ENV=local` registriert. Lokal ist das Dashboard unter `http://127.0.0.1:8000/telescope` ohne Anmeldung erreichbar. In anderen Umgebungen werden keine Telescope-Routen registriert; `composer install --no-dev` ist weiterhin möglich.
+
+Konfiguration: `config/telescope.php`; Filter und Maskierung: `app/Providers/TelescopeServiceProvider.php`. `TELESCOPE_ENABLED=false` deaktiviert lokal Aufzeichnung und Dashboard. Nach einer Änderung gegebenenfalls `php artisan config:clear` ausführen.
+
+Requests, Fehler, Datenbankabfragen und weitere Ereignisse werden in der konfigurierten Datenbank gespeichert, aktuell SQLite. Request-Passwörter, Cookies, Authorization- und CSRF-Werte werden auch lokal maskiert. Die mitgelieferten Dashboard-Assets benötigen keinen eigenen Frontend-Build.
+
+Alte Einträge bei Bedarf entfernen:
+
+```powershell
+php artisan telescope:prune --hours=48
+```
+
+Der Befehl entfernt Aufzeichnungen, die älter als 48 Stunden sind. Eine automatische Bereinigung ist noch nicht eingerichtet. Bei einem neuen Checkout legt `php artisan migrate` auch die Telescope-Tabellen an.
+
 ## Prüfung
 
 ```powershell

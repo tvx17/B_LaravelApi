@@ -24,6 +24,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | Datenbank | Aktuell SQLite, später MariaDB |
 | Berechtigungen | Spatie Laravel Permission 8.3.0, Guard `web` |
 | Artisan-Oberfläche | CodeSquirrel Artisan Runner UI 1.0.1 |
+| Debugging | Laravel Telescope 5.25.0 als Entwicklungsabhängigkeit; ausschließlich lokal |
 | Anmeldung | Browser-Anmeldung mit Sessions für die Runner UI |
 | Runner-Zugriff | Berechtigung `run-artisan-runner-ui` |
 | API-Anmeldung | Noch keine Sanctum- oder andere Token-Anmeldung |
@@ -99,6 +100,30 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Dieses Protokoll erstellt und aus `README.md` verlinkt.
 - Dokumentation auf Vollständigkeit und Verlinkung geprüft. Keine erneuten Anwendungstests ausgeführt, da dieser Schritt ausschließlich Dokumentation verändert.
 
+### 7. Laravel Telescope hinzugefügt
+
+- Auftrag: Laravel Telescope ergänzen und alle Schritte dokumentieren.
+- Projektkonfiguration, Service Provider, Abhängigkeiten und Migrationen geprüft; offizielle Laravel-13-Telescope-Dokumentation zur Installation gelesen.
+- Lokale Nutzung als Ausgangspunkt vorgeschlagen und nach einem möglichen QA-/Staging-Bedarf gefragt. Bestehende SQLite-Datenbank soll genutzt werden.
+- Nächste Schritte: Paket installieren, Konfiguration/Assets/Migration veröffentlichen, lokale Providerregistrierung einrichten, migrieren und prüfen.
+- `composer require laravel/telescope --dev --no-interaction --no-scripts` gestartet. Composer hat Telescope 5.25.0 und Laravel Sentinel 1.1.0 ausgewählt; Autoloader-Erzeugung läuft noch.
+- Lokale, durch `class_exists` abgesicherte Registrierung in `AppServiceProvider` vorbereitet. Die Absicherung ermöglicht später Installationen ohne Entwicklungsabhängigkeiten.
+- `TELESCOPE_ENABLED` und `TELESCOPE_PATH` in `.env.example` dokumentiert.
+- Composer-Installation abgeschlossen. `php artisan package:discover --ansi` und `php artisan telescope:install --no-interaction` ausgeführt; Konfiguration und Tabellenmigration veröffentlicht.
+- Den durch die Installation hinzugefügten globalen Provider aus `bootstrap/providers.php` wieder entfernt; Telescope-Autodiscovery in `composer.json` ausgeschaltet. Registrierung erfolgt ausschließlich lokal über `AppServiceProvider`.
+- Eigenen `TelescopeServiceProvider` mit lokaler Aufzeichnung und Maskierung von Passwörtern, Cookies, Authorization- und CSRF-Werten angelegt. Der Gate-Zugriff außerhalb von `local` wird verweigert.
+- Datenbank-Fallback in `config/telescope.php` an SQLite angepasst; eine spätere konfigurierte MariaDB-Verbindung wird automatisch übernommen.
+- `composer update --lock --no-install --no-scripts --no-interaction` ausgeführt, um die Lockdatei nach der Autodiscovery-Konfiguration abzugleichen. Keine weiteren Paketversionen geändert; Composer meldete keine Sicherheitswarnungen zu Abhängigkeiten.
+- Pakete erneut registriert, Konfigurationscache geleert und `php artisan migrate --no-interaction` ausgeführt. Migration `2026_10_07_051957_create_telescope_entries_table.php` erfolgreich angewendet.
+- Dashboard-Routen geprüft und Composer-Konfiguration validiert. Die bereits bekannte Warnung zur Spatie-Versionsvorgabe bleibt offen.
+- Die aktuelle Paketversion lädt ihre gebündelten CSS-/JS-Assets direkt; kein eigener Frontend-Build oder separates Kopieren von Dashboard-Assets erforderlich.
+- README um Nutzung, lokale Erreichbarkeit und manuelles Pruning ergänzt. Vier Integrationstests für Umgebungsgrenzen, Dashboard und maskierte Request-Aufzeichnung hinzugefügt; vollständiger Testlauf gestartet.
+- Erster Testlauf: 27 Tests erfolgreich, ein Dashboard-Test scheiterte an einer Textannahme. Das Dashboard lieferte HTTP 200; sein Titel verteilt „Laravel“ und „Telescope“ auf HTML-Elemente. Prüfung auf die tatsächlich gerenderte Dashboard-Ansicht korrigiert.
+- Abschlussprüfung: **28 Tests, 106 Assertions erfolgreich**. Die Tests bestätigen verfügbare lokale Dashboard-Ansicht, fehlende Registrierung in Testing/Produktion sowie gespeicherte und maskierte Request-Daten.
+- `php vendor/bin/pint --test` erfolgreich; `php artisan migrate:status --no-interaction` bestätigt alle fünf Migrationen als ausgeführt, einschließlich Telescope.
+- Lokal ist `/telescope` gemäß Telescope-Standard ohne Anmeldung erreichbar. Eine automatische Bereinigung und ein Zugang für QA/Staging wurden nicht eingerichtet. Die zuvor gestellte Frage zum QA-/Staging-Bedarf blieb unbeantwortet; die angekündigte lokale Variante wurde umgesetzt.
+- README und dieses Protokoll aktualisiert. Bisherige Arbeitsschritte und offene Aufgaben bleiben erhalten.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen
@@ -135,6 +160,8 @@ Tests nutzen SQLite im Arbeitsspeicher. Für neue Checkouts und die Ersteinricht
 - `allowed` ist aktuell leer: alle Befehle außer denen in `denied` sind verfügbar. Vor Nutzung außerhalb der lokalen Entwicklung die tatsächlich benötigten Befehle festlegen.
 - Passwörter und Anwendungsschlüssel bleiben lokal; `.env`, SQLite-Datei und `vendor/` werden nicht eingecheckt.
 - Bei Paketupdates die veröffentlichte Runner-Ansicht mit der neuen Originalansicht vergleichen.
+- Telescope lokal unter `/telescope` öffnen. `TELESCOPE_ENABLED=false` schaltet Aufzeichnung und Dashboard ab; außerhalb von `local` wird der Provider grundsätzlich nicht registriert.
+- Telescope nutzt die konfigurierte Datenbank. Bei Bedarf mit `php artisan telescope:prune --hours=48` Aufzeichnungen älter als 48 Stunden löschen; der Befehl wurde bei der Installation nicht ausgeführt.
 
 ## Offene Aufgaben und nächste Entscheidungen
 
@@ -154,6 +181,7 @@ Tests nutzen SQLite im Arbeitsspeicher. Für neue Checkouts und die Ersteinricht
 - [ ] Spatie-Versionsvorgabe von `*` auf einen passenden Versionsbereich begrenzen; Lockdatei aktualisieren und prüfen.
 - [ ] `composer setup` und `composer dev` für den gewünschten reinen API-Betrieb überprüfen; die Vorlage enthält noch Frontend-Schritte.
 - [ ] Standard-`DatabaseSeeder` prüfen: er enthält noch die Laravel-Testbenutzeranlage. Nicht ungeprüft für reale Umgebungen verwenden.
+- [ ] Aufbewahrungsdauer für Telescope-Aufzeichnungen festlegen; bei Bedarf automatische Bereinigung und lokalen Scheduler einrichten.
 - [ ] Veraltete Informationen in `AGENTS.md` erst aktualisieren, wenn die ursprüngliche Vorgabe zum Nichtändern aufgehoben wird.
 
 ### Späterer MariaDB-Wechsel und Betrieb
