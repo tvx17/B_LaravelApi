@@ -10,6 +10,7 @@ enum SystemResponseCode: string
     case Forbidden = '00403';
     case NotFound = '00404';
     case MethodNotAllowed = '00405';
+    case CsrfError = '00419';
     case ValidationError = '00422';
     case TooManyRequests = '00429';
     case ServerError = '00500';

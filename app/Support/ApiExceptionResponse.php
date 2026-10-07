@@ -25,6 +25,7 @@ class ApiExceptionResponse
             403 => SystemResponseCode::Forbidden,
             404 => SystemResponseCode::NotFound,
             405 => SystemResponseCode::MethodNotAllowed,
+            419 => SystemResponseCode::CsrfError,
             422 => SystemResponseCode::ValidationError,
             429 => SystemResponseCode::TooManyRequests,
             default => $httpStatus >= 500 ? SystemResponseCode::ServerError : SystemResponseCode::RequestError,

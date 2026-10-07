@@ -28,7 +28,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | Debugging | Laravel Telescope 5.25.0 als Entwicklungsabhängigkeit; ausschließlich lokal |
 | Anmeldung | Browser-Anmeldung mit Sessions für die Runner UI |
 | Runner-Zugriff | Berechtigung `run-artisan-runner-ui` |
-| API-Anmeldung | Noch keine Sanctum- oder andere Token-Anmeldung |
+| API-Anmeldung | Sanctum 4.3.3 mit Cookies/Sessions für localhost:9200; Login/Logout und aktueller Benutzer |
 | Registrierung | Keine öffentliche Registrierung |
 | OAuth | Laravel Socialite 5.31.0 als Grundlage; Anbieter und Login-Ablauf noch offen |
 | Medien | Spatie Media Library 11.23.9; Modellanbindung noch offen |
@@ -235,6 +235,39 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Session-, Filament- und Runner-Tests auf neue URLs umgestellt; zusätzlichen Test für eindeutige Präfixe und nicht mehr erreichbare alte URLs ergänzt. Vollständige Suite: 39 Tests, 159 Assertions bestanden. `php vendor/bin/pint --test` und `git diff --check` erfolgreich. Routenlisten bestätigen sechs Runner-Routen unter `artisan` sowie Filament-Panel-/Download-Routen unter `filament` ohne Überschneidung.
 - Laravel-/Livewire-Infrastruktur und statische Paketassets behalten ihre paketweiten Pfade; diese sind keine eigenen Panel- oder Runner-Fachrouten. Keine Paketdateien verändert.
 
+### 18. Vorhandene Media-Library-Installation erneut geprüft
+
+- Auf Benutzerwunsch Installation geprüft: `composer show spatie/laravel-medialibrary` bestätigt Version 11.23.9 in `vendor/`.
+- `config/media-library.php` vorhanden. `php artisan migrate:status` bestätigt ausgeführte Media-Migration; Laravel-Bootstrap bestätigt registrierten `MediaLibraryServiceProvider` und vorhandene Tabelle `media`.
+- Keine erneute Installation oder Migration erforderlich; keine Abhängigkeiten oder Anwendungsdaten verändert. Fachliche Modellanbindung bleibt wie bisher offen.
+
+### 19. Aktuelle CORS-Handhabung geprüft
+
+- Keine eigene `config/cors.php` vorhanden; Laravel lädt seine Framework-Standardkonfiguration. Globale `HandleCors`-Middleware ist aktiv und nicht durch die Anwendung entfernt.
+- Wirksame Werte über Laravel-Bootstrap geprüft: Pfade `api/*` und `sanctum/csrf-cookie`, Origins/Methoden/Header jeweils `*`, `supports_credentials=false`, `exposed_headers=[]`, `max_age=0`. Sanctum-Pfad ist nur ein Standardwert, keine Aussage über eine installierte Sanctum-Anmeldung.
+- OPTIONS-Preflight für `/api/status` mit Origin `http://localhost:5173` lokal über den HTTP-Kernel geprüft: HTTP 204, `Access-Control-Allow-Origin: *`, angefragte Methode GET und Header Authorization/Content-Type erlaubt; kein Allow-Credentials-Header.
+- `/`, `/filament` und `/artisan` sind nicht in den CORS-Pfaden enthalten. Keine Konfiguration geändert. Bei gewünschter Anpassung `php artisan config:publish cors` ausführen und konkrete Frontend-Origins sowie Authentifizierungsart festlegen.
+
+### 20. CORS für localhost:9200 mit Cookies eingerichtet
+
+- Frontend-Origin als `http://localhost:9200` interpretiert; Benutzer bestätigt Cookies/Sessions. Laravel-Sanctum-Dokumentation für Cookie-/SPA-Voraussetzungen geprüft.
+- `config/cors.php` angelegt: explizite Origin, `supports_credentials=true`, Pfade `api/*` und vorbereitend `sanctum/csrf-cookie`; Methoden/Header wie bisher erlaubt. `CORS_ALLOWED_ORIGINS` als optionale kommagetrennte Konfiguration in `.env.example` dokumentiert; Default greift auch lokal ohne `.env`-Änderung.
+- Konfigurationscache geleert. Cookie-Domain und SameSite nicht geändert: hostgebundene Cookies und `lax` passen zu HTTP-Frontend/API auf `localhost` mit unterschiedlichen Ports. Frontend muss Credentials aktivieren; für spätere mutierende Session-Anfragen zusätzlich CSRF-Ablauf erforderlich.
+- CORS-Tests für erlaubten Preflight, Credentials, normale Antwort, andere Origin und ausgeschlossene Panels ergänzt. Erster Test erwartete bei fremder Origin keinen Allow-Origin-Header; die Bibliothek setzt bei einer einzelnen freigegebenen Origin diesen festen Wert unabhängig von der Anfrage. Browser verweigern fremde Origins wegen der fehlenden Übereinstimmung. Test entsprechend auf festen erlaubten Wert korrigiert. Gezielt 4 Tests, 21 Assertions bestanden; Pint bestanden.
+- Keine Sanctum- oder API-Anmeldung vorhanden. Rückfrage zur anschließenden Sanctum-/Login-/Logout-Einrichtung gestellt; noch keine Antwort. CORS-Pfad erstellt keine CSRF-Route. README dokumentiert aktuellen Umfang und Frontend-Voraussetzungen.
+- Abschließende vollständige Testsuite: 43 Tests, 180 Assertions bestanden. `git diff --check` erfolgreich. Keine Browser-Anmeldung getestet, da SPA-Authentifizierung noch nicht eingerichtet.
+
+### 21. Sanctum und API-Session-Anmeldung eingerichtet
+
+- Benutzer autorisiert Sanctum mit CSRF-Initialisierung und API-Login/Logout für das Frontend auf `http://localhost:9200`.
+- `laravel/sanctum:^4.0` als reguläre Composer-Abhängigkeit ergänzt; gezieltes Update installiert 4.3.3 ohne bestehende Paketupdates. Plattformanforderungen erfüllt; Composer meldet keine Sicherheitsadvisories. Installationsupdate bewusst ohne Autoload/Skripte; anschließender Autoload wie zuvor temporär ohne Optimierung erzeugt, Manifest wiederhergestellt und alle Composer-Hooks einschließlich Filament-Assets erfolgreich ausgeführt.
+- Sanctum-Konfiguration veröffentlicht, Standard-Stateful-Domain gezielt auf `localhost:9200` begrenzt und in `.env.example` dokumentiert. `statefulApi()` aktiviert, Konfigurationscache geleert; wirksame Domain und Guard `web` geprüft. Keine Token-Migration, kein HasApiTokens-Trait und keine Token-Erzeugung für den reinen Session-Betrieb.
+- `UserController` delegiert per Methodeninjektion an `app/Actions/Users/LoginAction.php`, `LogoutAction.php`, `MeAction.php`. Routen: POST `/api/login` mit Login-Throttle; GET `/api/user` und POST `/api/logout` mit `auth:sanctum`. Sanctum stellt GET `/sanctum/csrf-cookie` bereit.
+- Login validiert Eingaben, verlangt eine Stateful-Session, authentifiziert über `web` und erneuert die Session-ID. Logout invalidiert Session und CSRF-Token. Rückgaben über API-Trait; keine neuen Konten oder Admin-/Runner-Rechte. Codes `05003` für Logout und `05004` für aktuellen Benutzer ergänzt, `00419` für CSRF-Fehler.
+- Gezielt 8 Authentifizierungstests mit 58 Assertions bestanden: CSRF-Cookies/CORS, Login/User/Logout und Session-Erneuerung, keine Passwortfelder, falsche Zugangsdaten, Validierung, fremde Origin, CSRF-Verweigerung und gültiger Token, Login-Throttle. README mit Frontend-Ablauf, Axios-/fetch-Hinweisen und gemeinsamem Session-Guard aktualisiert.
+- Bestehende Panelpfade und Rechte unverändert. API-Logout beendet die gemeinsame `web`-Session auch für die Browser-Panels. Echte Frontend-/Browser-Interaktion noch nicht geprüft; Tests verwenden isolierte SQLite-Datenbank.
+- Abschließende Prüfungen: vollständige Suite mit 51 Tests und 238 Assertions bestanden; Pint und `git diff --check` erfolgreich. Composer-Plattformprüfung und Manifestvalidierung erfolgreich, nur bestehende Warnung zu Spatie Permission `*`.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen
@@ -284,7 +317,7 @@ Tests nutzen SQLite im Arbeitsspeicher. Für neue Checkouts und die Ersteinricht
 ### Vor Ausbau der API zu entscheiden
 
 - [ ] Fachliche Ressourcen, Endpunkte, Validierungen und Fehler-/Antwortformat spezifizieren.
-- [ ] API-Authentifizierung entscheiden, beispielsweise Sanctum, falls erforderlich.
+- [x] API-Authentifizierung entschieden: Sanctum mit Cookies/Sessions für das lokale Frontend; spätere Produktionsdomains und HTTPS-Konfiguration separat festlegen.
 - [ ] Fachliche Rollen und Rechte sowie Policies festlegen; aktuell existiert nur die Runner-Zugriffsintegration.
 
 ### Bekannte Verbesserungen

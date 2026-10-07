@@ -158,6 +158,51 @@ php artisan route:list --path=api
 
 Tests verwenden SQLite im Arbeitsspeicher. API-Tests liegen in `tests/Feature/ApiTest.php`, Anwendungslogik in `app/`, API-Routen in `routes/api.php`.
 
+## CORS und Frontend-Cookies
+
+`config/cors.php` erlaubt `http://localhost:9200` für `/api/*` und den vorbereiteten Pfad `/sanctum/csrf-cookie`. Cookies sind über `supports_credentials=true` erlaubt. Andere Origins werden nicht freigegeben; Filament und Runner sind nicht in den CORS-Pfaden enthalten.
+
+`CORS_ALLOWED_ORIGINS` überschreibt die erlaubten Origins als kommagetrennte Liste vollständiger URLs einschließlich Schema und Port. Der Standard gilt auch ohne Eintrag in der lokalen `.env`. Nach Änderungen `php artisan config:clear` ausführen. Bei Cookie-Nutzung keine Wildcard-Origin konfigurieren.
+
+Frontend-Aufrufe benötigen z. B. `fetch(url, { credentials: 'include' })` beziehungsweise bei Axios `withCredentials: true` und für den späteren CSRF-Ablauf `withXSRFToken: true`. Frontend und API lokal beide mit `localhost` betreiben, beispielsweise Frontend `http://localhost:9200`, API `http://localhost:8000`; nicht mit `127.0.0.1` mischen. Die vorhandenen hostgebundenen Session-Cookies mit SameSite `lax` passen zu diesen HTTP-Adressen auf demselben Host.
+
+Sanctum ist für die SPA-Session-Anmeldung eingerichtet; siehe den folgenden Ablauf. Grundlage: [Laravel Sanctum SPA-Konfiguration](https://laravel.com/framework/docs/sanctum#spa-authentication).
+
+## API-Anmeldung mit Sanctum
+
+Sanctum 4.3.3 verwendet Cookies und den vorhandenen `web`-Guard. `config/sanctum.php` vertraut standardmäßig `localhost:9200`; `SANCTUM_STATEFUL_DOMAINS` kann die kommagetrennte Host-/Port-Liste ohne Schema überschreiben. CORS-Origins enthalten dagegen das Schema.
+
+| Aufruf | Zweck | Erfolgscode |
+| --- | --- | --- |
+| `GET /sanctum/csrf-cookie` | Session und XSRF-Cookie initialisieren | HTTP 204, kein JSON-Body |
+| `POST /api/login` | Mit `email` und `password` anmelden | `05001` |
+| `GET /api/user` | Angemeldeten Benutzer abrufen | `05004` |
+| `POST /api/logout` | Session beenden | `05003` |
+
+Beispiel im Frontend mit Axios:
+
+```javascript
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:8000',
+  withCredentials: true,
+  withXSRFToken: true,
+  headers: { Accept: 'application/json' },
+});
+
+await api.get('/sanctum/csrf-cookie');
+await api.post('/api/login', { email, password });
+const { data } = await api.get('/api/user');
+await api.post('/api/logout');
+```
+
+Axios ist ein Beispiel für das separate Frontend, keine hier installierte Abhängigkeit. Bei `fetch` Cookies mit `credentials: 'include'` mitsenden und den URL-dekodierten Wert des Cookies `XSRF-TOKEN` als `X-XSRF-TOKEN` bei POST-Anfragen übertragen. Origin/Referer muss zur freigegebenen SPA passen.
+
+Falsche Zugangsdaten liefern `05002`/HTTP 401, Validierungsfehler `00422`/422, fehlende Anmeldung `00401`/401 und fehlender/ungültiger CSRF-Token `00419`/419. Login ist gedrosselt. Nach 419 den CSRF-Ablauf erneut starten, nach 401 erneut anmelden.
+
+Ein vorhandenes Benutzerkonto wird benötigt; keine öffentliche Registrierung und keine automatisch vergebenen Admin-/Runner-Rechte. Sanctum ist hier ausschließlich für Sessions eingerichtet, ohne Token-Erzeugung oder Token-Migration. Browser-Panels und API teilen den `web`-Guard: API-Logout beendet daher auch die gemeinsame Browser-Session. `/filament` und `/artisan` bleiben getrennte Routenbereiche.
+
 ## API-Antwortformat
 
 Eigene API-Actions verwenden den Trait `App\Traits\ApiResponse`. Jede Antwort enthält `code` (fünfstelliger String), `status` (Boolean), `data` und `responseStatus` (zusätzlich zum tatsächlichen HTTP-Status).
@@ -175,7 +220,7 @@ Enums liegen in `app/Enums/Api/`. Die ersten zwei Ziffern identifizieren den Ber
 {"code":"00001","status":true,"data":{"status":"ok"},"responseStatus":200}
 ```
 
-Die eigenen JSON-Endpunkte `/` und `/api/*` sowie deren zentral behandelte Fehler nutzen dieses Format. Validierungsfehler stehen in `data.errors`, Fehlermeldungen in `data.message`; HTTP-Header wie `Retry-After` bleiben erhalten. Serverfehler geben keine internen Exception-Details aus. Browser-/Filament-/Runner-Antworten und der Laravel-Healthcheck `/up` behalten ihr jeweiliges Protokoll. Die User-Codes sind vorbereitet; es wurde keine API-Login-Route angelegt.
+Die eigenen JSON-Endpunkte `/` und `/api/*` sowie deren zentral behandelte Fehler nutzen dieses Format. Validierungsfehler stehen in `data.errors`, Fehlermeldungen in `data.message`; HTTP-Header wie `Retry-After` bleiben erhalten. Serverfehler geben keine internen Exception-Details aus. Browser-/Filament-/Runner-Antworten, CSRF-Initialisierung und der Laravel-Healthcheck `/up` behalten ihr jeweiliges Protokoll.
 
 ## Controller und Actions
 
