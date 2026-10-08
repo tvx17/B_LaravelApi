@@ -7,7 +7,11 @@ use App\Enums\Api\UserResponseCode;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Pipeline\Pipeline;
+use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Actions\AttemptToAuthenticate;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class LoginAction
 {
@@ -19,17 +23,18 @@ class LoginAction
             return $this->error(SystemResponseCode::Forbidden, null, 403);
         }
 
-        $credentials = $request->validate([
+        $request->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string'],
+            'remember' => ['sometimes', 'boolean'],
         ]);
 
-        if (! Auth::guard('web')->attempt($credentials)) {
+        try {
+            return app(Pipeline::class)->send($request)
+                ->through([AttemptToAuthenticate::class, PrepareAuthenticatedSession::class])
+                ->then(fn (Request $request): JsonResponse => app(LoginResponse::class)->toResponse($request));
+        } catch (ValidationException) {
             return $this->error(UserResponseCode::CredentialsError, null, 401);
         }
-
-        $request->session()->regenerate();
-
-        return $this->success(UserResponseCode::LoginSuccessful, Auth::guard('web')->user());
     }
 }

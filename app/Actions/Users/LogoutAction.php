@@ -3,11 +3,11 @@
 namespace App\Actions\Users;
 
 use App\Enums\Api\SystemResponseCode;
-use App\Enums\Api\UserResponseCode;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Fortify\Contracts\LogoutResponse;
 
 class LogoutAction
 {
@@ -23,6 +23,6 @@ class LogoutAction
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return $this->success(UserResponseCode::LogoutSuccessful);
+        return app(LogoutResponse::class)->toResponse($request);
     }
 }

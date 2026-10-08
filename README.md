@@ -172,6 +172,10 @@ Sanctum ist für die SPA-Session-Anmeldung eingerichtet; siehe den folgenden Abl
 
 Sanctum 4.3.3 verwendet Cookies und den vorhandenen `web`-Guard. `config/sanctum.php` vertraut standardmäßig `localhost:9200`; `SANCTUM_STATEFUL_DOMAINS` kann die kommagetrennte Host-/Port-Liste ohne Schema überschreiben. CORS-Origins enthalten dagegen das Schema.
 
+Fortify 1.41.0 übernimmt die Login-Pipeline: Zugangsdaten prüfen und Session erneuern. Konfiguration: `config/fortify.php`; Integration: `app/Providers/FortifyServiceProvider.php`. Die eigenen Controller delegieren weiterhin an Actions. Login-/Logout-Responses unter `app/Http/Responses/Fortify/` verwenden das gemeinsame API-Format. Optionales `remember` beim Login muss ein Boolean sein.
+
+Automatische Fortify-Routen sind mit `Fortify::ignoreRoutes()` deaktiviert, damit `/api/login`, `/api/logout`, `/artisan` und `/filament` ihre bestehenden Zuständigkeiten behalten. Fortify ist ohne eigene Views eingerichtet. Registrierung, Passwort-Reset, Profil-/Passwortänderung, Zwei-Faktor-Anmeldung und Passkeys sind deaktiviert. Das Aktivieren eines Features allein genügt bei dieser Integration nicht: dazu passende eigene Routen, Actions, Responses und gegebenenfalls Migrationen ergänzen. [Offizielle Fortify-Dokumentation](https://laravel.com/framework/docs/13.x/fortify).
+
 | Aufruf | Zweck | Erfolgscode |
 | --- | --- | --- |
 | `GET /sanctum/csrf-cookie` | Session und XSRF-Cookie initialisieren | HTTP 204, kein JSON-Body |

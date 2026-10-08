@@ -1,6 +1,6 @@
 # Projektdokumentation und Arbeitsprotokoll
 
-Stand: 07.10.2026. Diese Datei hält Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben fest. Die bisherigen Schritte wurden aus dem Gespräch und den Projektdateien rekonstruiert. Die README enthält die kurze Anleitung zur Nutzung.
+Stand: 08.10.2026. Diese Datei hält Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben fest. Die bisherigen Schritte wurden aus dem Gespräch und den Projektdateien rekonstruiert. Die README enthält die kurze Anleitung zur Nutzung.
 
 ## Dokumentation künftiger Arbeiten
 
@@ -29,6 +29,7 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 | Anmeldung | Browser-Anmeldung mit Sessions für die Runner UI |
 | Runner-Zugriff | Berechtigung `run-artisan-runner-ui` |
 | API-Anmeldung | Sanctum 4.3.3 mit Cookies/Sessions für localhost:9200; Login/Logout und aktueller Benutzer |
+| Authentifizierungsbackend | Fortify 1.41.0 für die API-Login-Pipeline; eigene Routen und Enum-Responses |
 | Registrierung | Keine öffentliche Registrierung |
 | OAuth | Laravel Socialite 5.31.0 als Grundlage; Anbieter und Login-Ablauf noch offen |
 | Medien | Spatie Media Library 11.23.9; Modellanbindung noch offen |
@@ -267,6 +268,19 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Gezielt 8 Authentifizierungstests mit 58 Assertions bestanden: CSRF-Cookies/CORS, Login/User/Logout und Session-Erneuerung, keine Passwortfelder, falsche Zugangsdaten, Validierung, fremde Origin, CSRF-Verweigerung und gültiger Token, Login-Throttle. README mit Frontend-Ablauf, Axios-/fetch-Hinweisen und gemeinsamem Session-Guard aktualisiert.
 - Bestehende Panelpfade und Rechte unverändert. API-Logout beendet die gemeinsame `web`-Session auch für die Browser-Panels. Echte Frontend-/Browser-Interaktion noch nicht geprüft; Tests verwenden isolierte SQLite-Datenbank.
 - Abschließende Prüfungen: vollständige Suite mit 51 Tests und 238 Assertions bestanden; Pint und `git diff --check` erfolgreich. Composer-Plattformprüfung und Manifestvalidierung erfolgreich, nur bestehende Warnung zu Spatie Permission `*`.
+
+## Arbeitsprotokoll: 08.10.2026
+
+### 22. Laravel Fortify integriert
+
+- Offizielle Fortify-Dokumentation und vorhandene Authentifizierung geprüft. Fortify als Backend in vorhandene API integrieren; Sanctum bleibt für Stateful-Cookies/CSRF zuständig. Keine neue Registrierung oder andere zuvor nicht spezifizierte Authentifizierungsfeatures aktiviert.
+- `php C:/Apps/php/composer.phar require 'laravel/fortify:^1.0' --no-interaction --no-update` und gezieltes Update mit `--no-scripts --no-autoloader` ausgeführt. Fortify 1.41.0 mit 18 weiteren Abhängigkeiten installiert, keine bestehenden Pakete aktualisiert oder entfernt. Composer meldet keine Sicherheitsadvisories; Plattformanforderungen unter Windows erfüllt.
+- Autoload wie zuvor temporär ohne Optimierung erzeugt, originales Manifest wiederhergestellt. Paketregistrierung und Composer-Hooks einschließlich Filament-Asset-Veröffentlichung erfolgreich; Cache dadurch geleert.
+- Eigene minimale `config/fortify.php` und registrierten `FortifyServiceProvider` ergänzt. `Fortify::ignoreRoutes()` verhindert Überschneidungen; Views und optionale Features deaktiviert. `fortify:install` bewusst nicht ausgeführt, da dessen Standardaktionen/-migrationen zu den nicht aktivierten Features gehören.
+- `LoginAction` delegiert an Fortifys `AttemptToAuthenticate` und `PrepareAuthenticatedSession`. Bestehende Request-Validierung/Stateful-Prüfung und Route-Throttle erhalten; fehlgeschlagene Authentifizierung weiterhin `05002`/401, Eingabevalidierung weiterhin `00422`/422. Optionales `remember` als Boolean validiert.
+- Eigene Fortify-Login-/Logout-Response-Verträge gebunden; Trait und Enum-Antwortformat beibehalten. Logout invalidiert weiterhin Session/CSRF; Controller enthalten ausschließlich delegierende Router-Methoden. Panel-Anmeldungen und Pfade unverändert.
+- Keine neuen Migrationen oder Änderungen an Bestandskonten. Fortify-/Passkeys-Abhängigkeiten sind installiert, ihre optionalen Features und Routen jedoch deaktiviert. Erweiterungen benötigen später explizite eigene Routen/Actions und gegebenenfalls Schemaänderungen.
+- README um Rollen von Sanctum/Fortify, Konfiguration, optionale Features und Migrationseinschränkungen ergänzt. Authentifizierungstests um Fortify-Callback-Nachweis und fehlende Zusatz-/Konfliktrouten erweitert: gezielt 10 Tests mit 73 Assertions bestanden. Vollständige Suite: 53 Tests mit 253 Assertions bestanden; Pint und `git diff --check` erfolgreich. Manifestvalidierung erfolgreich mit bestehender Spatie-Permission-Warnung. Browser-/Frontend-Interaktion nicht zusätzlich geprüft.
 
 ## Betrieb und wichtige Befehle
 

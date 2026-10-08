@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Fortify;
 use Tests\TestCase;
 
 class ApiAuthenticationTest extends TestCase
@@ -118,5 +120,44 @@ class ApiAuthenticationTest extends TestCase
 
         $this->postJson('/api/login', ['email' => 'missing@example.com', 'password' => 'wrong'])
             ->assertTooManyRequests()->assertJsonPath('code', '00429');
+    }
+
+    public function test_api_login_uses_the_fortify_authentication_pipeline(): void
+    {
+        $user = User::factory()->create();
+        $called = false;
+        Fortify::authenticateUsing(function ($request) use ($user, &$called) {
+            $called = true;
+
+            return $request->input('email') === $user->email && $request->input('password') === 'password'
+                ? $user : null;
+        });
+
+        try {
+            $this->postJson('/api/login', ['email' => $user->email, 'password' => 'password'])
+                ->assertOk()->assertJsonPath('code', '05001');
+            $this->assertTrue($called);
+            $this->assertAuthenticatedAs($user, 'web');
+        } finally {
+            Fortify::$authenticateUsingCallback = null;
+        }
+    }
+
+    public function test_fortify_does_not_register_conflicting_or_unrequested_routes(): void
+    {
+        $this->assertFalse(Fortify::$registersRoutes);
+        $this->assertFalse(config('fortify.views'));
+        $this->assertSame([], config('fortify.features'));
+        $this->assertSame(url('/artisan/login'), route('login'));
+        $this->assertSame(url('/filament/login'), route('filament.admin.auth.login'));
+
+        $loginRoutes = collect(Route::getRoutes())->filter(
+            fn ($route) => $route->uri() === 'api/login' && in_array('POST', $route->methods()),
+        );
+        $this->assertCount(1, $loginRoutes);
+
+        foreach (['/api/register', '/api/forgot-password', '/api/two-factor-challenge'] as $path) {
+            $this->postJson($path)->assertNotFound();
+        }
     }
 }
