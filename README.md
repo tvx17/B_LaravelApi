@@ -2,6 +2,8 @@
 
 Eine minimale API-Basis mit Laravel 13 und PHP ab 8.3.
 
+Alle aktuellen Einstellungen, installierten Erweiterungen, URLs und Befehle: [Laravel-Handbuch](LARAVEL_HANDBUCH.md). Vollständige Referenzen: [Konfiguration](docs/LARAVEL_KONFIGURATION.md) und [Composer-Pakete](docs/COMPOSER_PAKETE.md).
+
 Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben werden in [PROJEKTDOKUMENTATION.md](PROJEKTDOKUMENTATION.md) fortlaufend festgehalten.
 
 Windows-Eignung und Alternativen für Sicherungen: [BACKUP_PRUEFUNG.md](BACKUP_PRUEFUNG.md).

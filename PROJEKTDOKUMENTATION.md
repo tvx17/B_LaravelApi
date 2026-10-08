@@ -291,6 +291,15 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Paketcode geprüft: Brain-Routen und -Befehle nur in `local`. Routenliste bestätigt zehn Brain-Routen unter `/_laravel-brain`, unabhängig von `/filament` und `/artisan`. Kein MCP-Paket ergänzt, keine Lasttests ausgeführt und keine KI-Regeldateien erzeugt; `AGENTS.md` unverändert.
 - README um Scan, Oberfläche und Grenzen ergänzt. Oberfläche über Laravel-HTTP-Kernel mit HTTP 200 und HTML-Content-Type geprüft; keine interaktive Browserprüfung. Vollständige Suite: 53 Tests, 253 Assertions bestanden. Composer-Plattformprüfung, Pint und `git diff --check` erfolgreich; Manifestvalidierung mit bestehender Spatie-Permission-Warnung.
 
+### 24. Vollständige Einstellungs- und Erweiterungsdokumentation erstellt
+
+- Lokalen Stand aus Composer-Manifests/Installationsbestand, Konfigurationsdateien, Laravel-Bootstrap, Providern, Routen und vorhandenen Dokumenten erfasst. Keine komplette `.env` oder Zugangsdaten ausgegeben.
+- `LARAVEL_HANDBUCH.md` erstellt: Basiswerte, Konfigurationsbereiche, URLs/HTTP-Methoden, Zugangsrechte, sämtliche direkten Composer-Pakete mit Version/Aufruf, wichtige transitive Integrationen, API-Konvention, Frontend-/Composer-Skripte und Kopia. Aktive Funktionen gegenüber vorbereiteten Konfigurationen und offenen Aufgaben abgegrenzt.
+- `docs/COMPOSER_PAKETE.md` aus dem tatsächlichen `vendor/composer/installed.json` erzeugt: 180 installierte Pakete mit Version und direkter/transitiver Laufzeit-/Entwicklungseinordnung. npm-Vorgaben getrennt dokumentiert; ohne Lockdatei keine behaupteten konkreten Installationsversionen.
+- `scripts/Export-LaravelConfiguration.php` ergänzt und ausgeführt: alle 29 geladenen Konfigurationsgruppen als `docs/LARAVEL_KONFIGURATION.md` dokumentiert, einschließlich Paketdefaults. Credential-/Schlüsselfelder vorsorglich maskiert; keine `.env`-Kopie. URLs im Detailinventar ebenfalls maskiert; öffentliche Aufrufadressen stehen im Handbuch.
+- Pail-Einschränkung anhand des installierten PCNTL-Guards dokumentiert; native PowerShell-Loganzeige als Alternative genannt. Keine Zusatzprodukte installiert oder Anwendungseinstellungen geändert. README auf die neuen Referenzen verlinkt; AGENTS.md unverändert.
+- Abschlussprüfungen: Export erneut erfolgreich (29 Gruppen), PHP-Syntax und Pint bestanden; lokale Dokumentationslinks und Maskierung vorhandener Credential-Werte ohne Ausgabe der Werte geprüft. Transitive Entwicklungseinordnung anhand von Composers `dev-package-names` verifiziert/korrigiert. `git diff --check` erfolgreich. Keine erneute Anwendungstestsuite erforderlich, da Anwendungscode unverändert.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen
