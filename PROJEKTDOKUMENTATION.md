@@ -282,6 +282,15 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Keine neuen Migrationen oder Änderungen an Bestandskonten. Fortify-/Passkeys-Abhängigkeiten sind installiert, ihre optionalen Features und Routen jedoch deaktiviert. Erweiterungen benötigen später explizite eigene Routen/Actions und gegebenenfalls Schemaänderungen.
 - README um Rollen von Sanctum/Fortify, Konfiguration, optionale Features und Migrationseinschränkungen ergänzt. Authentifizierungstests um Fortify-Callback-Nachweis und fehlende Zusatz-/Konfliktrouten erweitert: gezielt 10 Tests mit 73 Assertions bestanden. Vollständige Suite: 53 Tests mit 253 Assertions bestanden; Pint und `git diff --check` erfolgreich. Manifestvalidierung erfolgreich mit bestehender Spatie-Permission-Warnung. Browser-/Frontend-Interaktion nicht zusätzlich geprüft.
 
+### 23. Laravel Brain installiert und unter Windows geprüft
+
+- Angefragtes Paket als `laramint/laravel-brain` identifiziert; offizielle Projektbeschreibung nennt Laravel 13 und die Entwicklungsinstallation. Composer-Anforderungen geprüft und lokal erfüllt; keine Linux-only-Erweiterung erforderlich.
+- Als Entwicklungsabhängigkeit mit `^2.4` ergänzt; gezieltes Update ohne Skripte/Autoload installiert 2.7.1 sowie `laramint/laravel-stress` 1.0.3. Keine bestehenden Pakete aktualisiert oder entfernt; keine Sicherheitsadvisories gemeldet.
+- Autoload vorübergehend ohne Optimierung erzeugt, ursprüngliches Manifest wiederhergestellt, Paketregistrierung und Composer-Hooks erfolgreich. Erstversuch von `brain:scan` vor abgeschlossener Registrierung fand noch keine Befehle; nach Abschluss erfolgreich wiederholt.
+- `php artisan brain:scan` unter Windows erfolgreich: 46 Knoten, 47 Verbindungen, 11 Tabs. Dateitreiber nutzt `storage/app/laravel-brain/`; Ausgabe in `.gitignore` aufgenommen. Keine Brain-Datenbankmigration notwendig. Automatische Analysehinweise sind keine separat geprüften Sicherheitsbefunde.
+- Paketcode geprüft: Brain-Routen und -Befehle nur in `local`. Routenliste bestätigt zehn Brain-Routen unter `/_laravel-brain`, unabhängig von `/filament` und `/artisan`. Kein MCP-Paket ergänzt, keine Lasttests ausgeführt und keine KI-Regeldateien erzeugt; `AGENTS.md` unverändert.
+- README um Scan, Oberfläche und Grenzen ergänzt. Oberfläche über Laravel-HTTP-Kernel mit HTTP 200 und HTML-Content-Type geprüft; keine interaktive Browserprüfung. Vollständige Suite: 53 Tests, 253 Assertions bestanden. Composer-Plattformprüfung, Pint und `git diff --check` erfolgreich; Manifestvalidierung mit bestehender Spatie-Permission-Warnung.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen

@@ -109,6 +109,19 @@ php artisan telescope:prune --hours=48
 
 Der Befehl entfernt Aufzeichnungen, die älter als 48 Stunden sind. Eine automatische Bereinigung ist noch nicht eingerichtet. Bei einem neuen Checkout legt `php artisan migrate` auch die Telescope-Tabellen an.
 
+## Laravel Brain
+
+`laramint/laravel-brain` ist als Entwicklungsabhängigkeit installiert. Lokal den Architekturgraphen erzeugen und danach im Browser öffnen:
+
+```powershell
+php artisan brain:scan --no-interaction
+php artisan serve
+```
+
+Oberfläche: `http://localhost:8000/_laravel-brain`. Nach Codeänderungen erneut scannen. Graphdateien liegen in `storage/app/laravel-brain/` und sind von Git ausgeschlossen. Die Paketoberfläche und Befehle werden nur bei `APP_ENV=local` registriert; bei `composer install --no-dev` wird das Paket nicht installiert.
+
+Der erste Scan wurde unter Windows erfolgreich ausgeführt. Brain erzeugt keine Upload- oder fachliche Admin-Oberfläche. Die automatisch installierte Abhängigkeit `laramint/laravel-stress` wurde nicht für Lasttests verwendet. Die Funktion zur Generierung von KI-Regeldateien nicht auf das vorhandene `AGENTS.md` anwenden, solange dessen Nichtändern-Vorgabe gilt. [Paketdokumentation](https://github.com/laramint/laravel-brain).
+
 ## Filament Admin-Panel
 
 Filament 5 ist unter `http://127.0.0.1:8000/filament` erreichbar, Anmeldung unter `/filament/login`. Panel-Konfiguration: `app/Providers/Filament/AdminPanelProvider.php`. Das Panel nutzt den vorhandenen `web`-Guard und benötigt in jeder Umgebung die Spatie-Berechtigung `access-admin-panel`.
