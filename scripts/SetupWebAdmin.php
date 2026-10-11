@@ -16,6 +16,11 @@ try {
     $app->make(Kernel::class)->bootstrap();
     $data = json_decode(stream_get_contents(STDIN), true, 512, JSON_THROW_ON_ERROR);
     (new AdminAction)->handle($data);
+} catch (RuntimeException $exception) {
+    if (in_array($exception->getMessage(), ['Rechtevergabe nicht bestätigt.', 'Ungültige E-Mail.', 'Neues Konto benötigt Anlagebestätigung, Namen und übereinstimmende Passwörter mit mindestens zwölf Zeichen.'], true)) {
+        fwrite(STDERR, 'SETUP_ADMIN_INVALID');
+    }
+    exit(1);
 } catch (Throwable) {
     // Avoid Laravel exception rendering/logging of sensitive setup payloads.
     exit(1);

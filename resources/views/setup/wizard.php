@@ -1,5 +1,7 @@
 <?php
 
+use App\Support\SetupRuntime;
+
 // Plain PHP template: available before Composer or Laravel have been initialized.
 $escape = fn ($value) => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $csrf = $escape($_SESSION['setup_csrf'] ?? '');
@@ -58,6 +60,15 @@ $field = function (string $name, string $label, string $type = 'text', ?string $
                         <p>Composer installiert die Pakete aus dem Lockfile einschließlich Entwicklungspaketen. Laravel-Hooks werden später im Schritt „Erweiterungen“ ausgeführt.</p>
                         <dl><dt>PHP</dt><dd><?= $escape(PHP_VERSION) ?></dd><dt>Prozessausführung</dt><dd><?= function_exists('proc_open') ? 'Verfügbar' : 'Gesperrt' ?></dd><dt>SQLite-Treiber</dt><dd><?= extension_loaded('pdo_sqlite') ? 'Verfügbar' : 'Fehlt' ?></dd><dt>MariaDB/MySQL-Treiber</dt><dd><?= extension_loaded('pdo_mysql') ? 'Verfügbar' : 'Fehlt' ?></dd><dt>vendor/ vorhanden</dt><dd><?= is_file($this->root.'/vendor/autoload.php') ? 'Ja' : 'Nein' ?></dd><dt>.env vorhanden</dt><dd><?= is_file($this->root.'/.env') ? 'Ja' : 'Nein' ?></dd></dl>
                         <p>PHP-CLI, Composer und <code>proc_open</code> müssen auf dem Server verfügbar sein. Bei vorab hochgeladenem <code>vendor/</code> kann dieser Schritt übersprungen werden. Die Installation kann einige Minuten dauern.</p>
+                        <?php
+                        try {
+                            $cliPath = SetupRuntime::php();
+                            $composerPath = SetupRuntime::composer()[1];
+                            echo '<p>Ermittelte PHP-CLI: <code>'.$escape($cliPath).'</code><br>Composer: <code>'.$escape($composerPath).'</code></p>';
+                        } catch (RuntimeException $runtimeError) {
+                            echo '<p class="notice error">'.$escape($runtimeError->getMessage()).'</p>';
+                        }
+                        ?>
                     <?php } elseif ($step === 'environment') { ?>
                         <p>Eine fehlende <code>.env</code> wird aus der sicheren Projektvorlage erstellt. Eine vorhandene Datei bleibt erhalten.</p>
                     <?php } elseif ($step === 'cache') { ?>

@@ -43,7 +43,7 @@
     "scripts": {
         "setup": [
             "Composer\\Config::disableProcessTimeout",
-            "@php scripts/Setup.php"
+            "App\\Support\\ComposerSetup::run"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",

@@ -12,10 +12,11 @@ class SetupTest extends TestCase
         $root = dirname(__DIR__, 2);
         $fixture = sys_get_temp_dir().'/laravel-setup-'.bin2hex(random_bytes(8));
         mkdir($fixture);
-        foreach (['scripts', 'vendor', 'database'] as $directory) {
+        foreach (['scripts', 'vendor', 'database', 'app', 'app/Support'] as $directory) {
             mkdir($fixture.'/'.$directory);
         }
         try {
+            copy($root.'/app/Support/SetupRuntime.php', $fixture.'/app/Support/SetupRuntime.php');
             foreach (['Setup.php', 'SetupEnvironment.php'] as $script) {
                 copy($root.'/scripts/'.$script, $fixture.'/scripts/'.$script);
             }

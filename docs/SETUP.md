@@ -54,3 +54,11 @@ SQLite-Auswahl im Browser ist auf `.sqlite`-Dateien innerhalb von `database/` be
 `.setup-access`, `.setup-complete`, `.setup.lock` und `.setup-login-attempts.json` sind von Git ausgeschlossen. Für eine ausdrücklich gewollte erneute Einrichtung zuerst die Abschlusssperre im Dateimanager entfernen und einen neuen Zugangsschlüssel erstellen. Die bestehende lokale Installation wird durch das Hinzufügen der Oberfläche nicht eingerichtet oder freigeschaltet.
 
 Technische Grundlage: PHP-[Prozessausführung](https://www.php.net/proc-open) und [Session-Cookie-Einstellungen](https://www.php.net/session-set-cookie-params).
+
+### Fehler bei Eingabe und Prozessstart
+
+`composer setup` verwendet einen Composer-PHP-Callback, der die echten Konsoleneingaben an den Setup-Prozess weitergibt. Damit funktioniert die Bestätigung auch unter Windows, wo der frühere `@php`-Aufruf die Standardeingabe geschlossen hat. Ohne verfügbares Terminal oder Eingabestream wird weiterhin abgebrochen; keine Zustimmung wird automatisch angenommen. Alternativ direkt `php scripts/Setup.php` starten.
+
+Für Apache/PHP wird der CLI-Pfad zuerst aus einer expliziten Servervariable, im CLI aus dem laufenden PHP, danach aus dem Verzeichnis der geladenen `php.ini`, dem eingebauten PHP-Verzeichnis und PATH ermittelt. Dies berücksichtigt verschobene Windows-Installationen, deren eingebauter Pfad noch auf `C:\php` zeigt. Composer wird als PHP-Datei gefunden und mit dieser absoluten PHP-CLI gestartet; ein nicht verfügbarer Apache-PATH für `php` oder `composer.bat` ist dadurch kein Hindernis, wenn `composer.phar` neben PHP liegt.
+
+Die Installationsseite zeigt die gefundenen PHP-/Composer-Pfade nur nach Anmeldung. Fehler nennen den Schritt, Exit-Code und bekannte feste Ursachen, etwa fehlende PDO-Treiber, Tabellen, Plattformanforderungen, Berechtigungen oder TLS-Probleme. Ungefilterte Prozessausgaben werden weiterhin nicht veröffentlicht. Browserseite nach Aktualisierung neu laden und den gewünschten Schritt erneut ausdrücklich bestätigen.

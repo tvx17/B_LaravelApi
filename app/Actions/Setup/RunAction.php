@@ -2,6 +2,7 @@
 
 namespace App\Actions\Setup;
 
+use App\Support\SetupRuntime;
 use Dotenv\Dotenv;
 use PDO;
 use RuntimeException;
@@ -43,14 +44,7 @@ final class RunAction
             throw new RuntimeException('Unbekannter Einrichtungsschritt.');
         }
         if ($step === 'install') {
-            $composer = getenv('COMPOSER_BINARY');
-            if ($composer && is_file($composer) && str_ends_with($composer, '.phar')) {
-                $this->process([$this->php(), $composer, 'install', '--no-interaction', '--no-scripts']);
-            } else {
-                $this->process(PHP_OS_FAMILY === 'Windows'
-                    ? ['cmd.exe', '/d', '/c', 'composer install --no-interaction --no-scripts']
-                    : ['composer', 'install', '--no-interaction', '--no-scripts']);
-            }
+            $this->process(SetupRuntime::composer());
 
             return 'Composer-Abhängigkeiten installiert. Weiter mit .env.';
         }
@@ -277,13 +271,7 @@ final class RunAction
 
     private function php(): string
     {
-        // PHP_BINARY can be php-fpm/php-cgi in a web request. Never execute those as CLI.
-        $binary = getenv('SETUP_PHP_BINARY') ?: (PHP_SAPI === 'cli' || PHP_SAPI === 'cli-server' ? PHP_BINARY : PHP_BINDIR.'/'.(PHP_OS_FAMILY === 'Windows' ? 'php.exe' : 'php'));
-        if (! is_file($binary)) {
-            throw new RuntimeException('PHP-CLI fehlt. Hosting muss PHP-CLI bereitstellen; gegebenenfalls SETUP_PHP_BINARY als Servervariable konfigurieren.');
-        }
-
-        return $binary;
+        return SetupRuntime::php();
     }
 
     private function process(array $arguments, string $input = ''): void
@@ -302,8 +290,16 @@ final class RunAction
             fwrite($stdin, $input);
             rewind($stdin);
             $process = proc_open($arguments, [$stdin, $output, $errors], $pipes, $this->root);
-            if (! is_resource($process) || proc_close($process) !== 0) {
-                throw new RuntimeException('Schritt fehlgeschlagen. PHP-CLI, Composer, Erweiterungen, Datenbank, Schreibrechte und Hosting-Zeitlimits prüfen. Ausgaben werden zum Schutz von Zugangsdaten nicht im Browser angezeigt.');
+            if (! is_resource($process)) {
+                throw new RuntimeException('Einrichtungsprozess konnte nicht gestartet werden. Prozessrechte prüfen.');
+            }
+            $exit = proc_close($process);
+            if ($exit !== 0) {
+                rewind($output);
+                rewind($errors);
+                $diagnosis = SetupRuntime::failure(stream_get_contents($output).stream_get_contents($errors));
+                $label = in_array($arguments[2] ?? '', ['config:clear', 'route:clear', 'migrate', 'package:discover', 'filament:upgrade', 'permission:cache-reset', 'storage:link', 'brain:scan'], true) ? $arguments[2] : 'Composer/Admin-Einrichtung';
+                throw new RuntimeException($label.' fehlgeschlagen (Exit-Code '.$exit.'). '.$diagnosis);
             }
         } finally {
             fclose($stdin);

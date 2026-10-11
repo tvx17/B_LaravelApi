@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\SetupRuntime;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -7,6 +8,7 @@ use Symfony\Component\Console\Question\Question;
 
 // Standalone entry point: works before vendor/ or .env exist.
 chdir(dirname(__DIR__));
+require_once __DIR__.'/../app/Support/SetupRuntime.php';
 
 function setupConfirm(string $question): bool
 {
@@ -33,14 +35,7 @@ try {
     }
     echo "LaravelAPI-Einrichtung (Windows/Linux/macOS). Alle Schritte sind optional und werden bestätigt.\n";
     if (setupConfirm('Composer-Abhängigkeiten aus composer.lock installieren (inklusive Entwicklungspakete, ohne Setup-Hooks)?')) {
-        $composer = getenv('COMPOSER_BINARY');
-        if ($composer && is_file($composer) && str_ends_with($composer, '.phar')) {
-            setupRun([PHP_BINARY, $composer, 'install', '--no-interaction', '--no-scripts']);
-        } elseif (PHP_OS_FAMILY === 'Windows') {
-            setupRun(['cmd.exe', '/d', '/c', 'composer install --no-interaction --no-scripts']);
-        } else {
-            setupRun(['composer', 'install', '--no-interaction', '--no-scripts']);
-        }
+        setupRun(SetupRuntime::composer());
     }
     if (! is_file('vendor/autoload.php')) {
         throw new RuntimeException('Abhängigkeiten fehlen. Composer installieren bzw. Installationsschritt bestätigen.');

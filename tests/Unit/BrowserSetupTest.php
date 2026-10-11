@@ -12,7 +12,7 @@ class BrowserSetupTest extends TestCase
         $source = dirname(__DIR__, 2);
         $root = sys_get_temp_dir().'/browser-setup-'.bin2hex(random_bytes(8));
         mkdir($root);
-        $files = ['public/setup.php', 'app/Support/SetupAccess.php', 'app/Actions/Setup/IndexAction.php', 'app/Actions/Setup/RunAction.php', 'resources/views/setup/wizard.php', 'scripts/SetupEnvironment.php', '.env.example'];
+        $files = ['public/setup.php', 'app/Support/SetupAccess.php', 'app/Support/SetupRuntime.php', 'app/Actions/Setup/IndexAction.php', 'app/Actions/Setup/RunAction.php', 'resources/views/setup/wizard.php', 'scripts/SetupEnvironment.php', '.env.example'];
         foreach ($files as $file) {
             if (! is_dir(dirname($root.'/'.$file))) {
                 mkdir(dirname($root.'/'.$file), 0777, true);
