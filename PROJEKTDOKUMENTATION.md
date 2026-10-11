@@ -1,6 +1,6 @@
 # Projektdokumentation und Arbeitsprotokoll
 
-Stand: 08.10.2026. Diese Datei hält Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben fest. Die bisherigen Schritte wurden aus dem Gespräch und den Projektdateien rekonstruiert. Die README enthält die kurze Anleitung zur Nutzung.
+Stand: 11.10.2026. Diese Datei hält Arbeitsschritte, Entscheidungen, Prüfergebnisse und offene Aufgaben fest. Die bisherigen Schritte wurden aus dem Gespräch und den Projektdateien rekonstruiert. Die README enthält die kurze Anleitung zur Nutzung.
 
 ## Dokumentation künftiger Arbeiten
 
@@ -300,6 +300,31 @@ Keine Passwörter, Schlüssel, Tokens oder vollständigen Inhalte der lokalen `.
 - Pail-Einschränkung anhand des installierten PCNTL-Guards dokumentiert; native PowerShell-Loganzeige als Alternative genannt. Keine Zusatzprodukte installiert oder Anwendungseinstellungen geändert. README auf die neuen Referenzen verlinkt; AGENTS.md unverändert.
 - Abschlussprüfungen: Export erneut erfolgreich (29 Gruppen), PHP-Syntax und Pint bestanden; lokale Dokumentationslinks und Maskierung vorhandener Credential-Werte ohne Ausgabe der Werte geprüft. Transitive Entwicklungseinordnung anhand von Composers `dev-package-names` verifiziert/korrigiert. `git diff --check` erfolgreich. Keine erneute Anwendungstestsuite erforderlich, da Anwendungscode unverändert.
 
+### 25. Interaktiven Einrichtungsassistenten für GitHub-Checkouts umgesetzt (11.10.2026)
+
+- Anforderungen bestätigt: primär Windows, außerdem Linux/macOS; SQLite oder MariaDB/MySQL, vorhandene/neue Datenbank; sichere `.env`-Vorlage, API-/Frontend-Adressen, optionaler gemeinsamer Administrator und Bestätigung jedes Schritts.
+- `composer setup` ersetzt den bisherigen ungefragten Vorlagenablauf einschließlich npm. `scripts/Setup.php` funktioniert auch ohne `vendor/` und `.env`; alternativ direkt mit PHP starten. Composer-Zeitlimit für den interaktiven Ablauf deaktiviert. Installation verwendet das Lockfile mit Entwicklungspaketen, ohne automatische Laravel-Hooks; Paketregistrierung und Filament-Assets folgen als bestätigter Schritt.
+- `.env.example` bleibt frei von lokalen Geheimnissen; Runner-Standard auf den aktuellen lokalen Wert `true` angepasst. `scripts/SetupEnvironment.php` schreibt nur ausgewählte Schlüssel, erhält andere Werte/Kommentare und behandelt Sonderzeichen ohne Variableninterpolation. Bestehender APP_KEY wird nicht erneuert.
+- Datenbankwahl, vorhandene/neue Datei beziehungsweise Serverdatenbank, verdeckte Passwortabfrage, Verbindungsprüfung und separate Bestätigung der Speicherung ergänzt. Kein Überschreiben bestehender SQLite-Dateien und kein Datenbank-Reset. Neue Serverdatenbanken benötigen CREATE-Rechte. Ziel vor Migration anzeigen; eine bereits bestätigte Datenbankanlage bleibt bei späterer Ablehnung bestehen.
+- CORS-/Session-Konfiguration für API und Frontend auf gleichem Host/Schema; anschließend einzeln bestätigte Migrationen, Paketassets, Administrator, Runner-Aktivierung, Storage-Link und Brain-Scan. Abschließend URLs und Serveraufruf ausgeben; Server, Queues und Kopia nicht automatisch starten.
+- `setup:admin` ergänzt: neue Konten erst nach Anlage- und Rechtebestätigung erstellen; vorhandene Namen/Passwörter erhalten. Beide Web-Guard-Rechte gemeinsam vergeben. `setup:*` in der Runner UI gesperrt.
+- README, Handbuch und `docs/SETUP.md` aktualisiert; Konfigurationsreferenz neu exportiert (29 Gruppen). Bestehende AGENTS.md unverändert.
+- Prüfung: kompletter damaliger Testsatz 59 Tests/287 Assertions bestanden; zusätzlicher isolierter Setup-Test 1 Test/8 Assertions bestanden (zusammen 60/295). Neue Tests prüfen Kontoanlage, Rechte, Ablehnung, nichtinteraktive Aufrufe, `.env`-Sonderzeichen und einen neuen SQLite-/CORS-Setupablauf. Der isolierte Test ersetzt Artisan-Unterprozesse durch einen Stub; echte Paketinstallation/Migrationen werden darin nicht ausgeführt. Alle Schritte ablehnen als separater Smoke-Test erfolgreich; lokale `.env` unverändert. Pint, Composer-Validierung und Diff-Prüfung bestanden; bestehende Warnung zum Permission-Versionsbereich `*` bleibt.
+- Keine echte Installation, Migration oder Kontoanlage in der vorhandenen Anwendung ausgeführt. MariaDB/MySQL und Linux/macOS müssen noch praktisch geprüft werden. Pail bleibt unter nativem Windows ungeeignet und wird vom Assistenten nicht gestartet. Einrichtungsfehler brechen ab; bestätigte Schritte werden nicht automatisch rückgängig gemacht.
+
+### 26. Grafischen Browser-Assistenten ergänzt (11.10.2026)
+
+- `/setup.php` als unabhängigen PHP-Einstieg ergänzt, damit die Oberfläche auch ohne Composer-Abhängigkeiten, `.env`, Laravel-Schlüssel oder Session-Tabellen startet. Keine zusätzlichen Pakete installiert. Webserver muss bereits laufen und ausschließlich `public/` ausliefern; eigener Terminalzugang ist nicht erforderlich, serverseitige PHP-CLI und Prozessausführung für Composer/Artisan jedoch schon.
+- Fachliche Einrichtung in `app/Actions/Setup/RunAction.php`, HTTP-Ablauf in `IndexAction.php`, Kontoanlage in `AdminAction.php`; Template `resources/views/setup/wizard.php`. Keine Controller mit zusätzlicher Fachlogik eingeführt. Filament-/Artisan-Routen unverändert.
+- Grafische Navigation mit Status, Ausführen-/Überspringen-Schaltflächen, Eingabefeldern und ausdrücklicher Bestätigung ergänzt. PHP, PDO-Treiber, Prozessausführung und vorhandene Dateien werden angezeigt. Schritte decken Installation, `.env`, Caches, Schlüssel, Datenbank, CORS, Migrationen, Paketassets, gemeinsamen Administrator, Runner, Storage, Brain und Abschlussübersicht ab.
+- Sicheren Standard vorgesehen: keine aktive Setup-Freigabe mitgeliefert. Betreiber erstellt per Editor/Hosting-Dateimanager `.setup-access` außerhalb des öffentlichen Verzeichnisses mit eigenem zufälligem Schlüssel (mindestens 32 Zeichen). Eigene PHP-Sitzung mit HttpOnly-/SameSite-Cookie, Formularschutz, einer Stunde Zugangszeit und Anmeldebegrenzung ergänzt. Externe Zugriffe benötigen HTTPS; lokale HTTP-Freigabe prüft sowohl Gegenstelle als auch Hostnamen. Keine ungeprüften Proxy-Header akzeptiert.
+- Parallele POST-Schritte über Dateisperre geschützt; Formular-Token vor Ausführung erneuern, damit erneutes Absenden keinen Schritt wiederholt. Passwörter nicht zurück ins Formular übernehmen und nicht in Prozessargumenten übergeben. Subprozessausgaben nicht im Browser veröffentlichen. Nur fest vorgegebene Composer-/Artisan-Befehle ausführen; PHP-CLI-/Composer-Pfade stammen ausschließlich aus Servereinstellungen.
+- Neue SQLite-Dateien ausschließlich innerhalb von `database/` und mit `.sqlite`-Endung zulassen; vorhandene Dateien nicht überschreiben. Browser-Bestätigung umfasst Datenbankanlage, Verbindungstest und Speicherung gemeinsam. Anwendungsdaten nicht zurücksetzen; bereits bestätigte Änderungen bleiben bei Fehlern erhalten.
+- Kontoanlage in frischem PHP-Prozess, damit die neue Datenbankkonfiguration gilt. Neue Konten benötigen separate Anlagebestätigung und gültige Passwortbestätigung; vorhandene Namen/Passwörter erhalten und beide Web-Guard-Rechte vergeben. Abschluss legt `.setup-complete` an und entfernt den Zugangsschlüssel; spätere Aufrufe bleiben gesperrt.
+- Setup-Zugangs-, Sperr- und Anmeldebegrenzungsdateien in `.gitignore` aufgenommen. README, Handbuch und `docs/SETUP.md` um Aufruf, Freigabe ohne CLI, Servervoraussetzungen, Windows-Dateinamen, HTTPS/Proxy-Konfiguration, Hosting-Zeitlimits, Wiederfreigabe und offene Aufgaben ergänzt. Pail und Kopia werden nicht gestartet oder installiert; AGENTS.md unverändert.
+- Prüfung: vollständige Suite 69 Tests/361 Assertions bestanden. Neue Tests prüfen Schlüsselfreigabe, CSRF, Bestätigung, Ablauf/Rotation der Sitzung, Anmeldebegrenzung, Transport, Kontoanlage/-erhalt sowie einen echten HTTP-Ablauf im isolierten Testverzeichnis mit eigenem PHP-Webserver bis zur Abschlusssperre. Composer-Abhängigkeiten werden dort erst nach der Anmeldung simuliert; Artisan-Aufrufe verwenden einen Stub. Echte Composer-Neuinstallation, MariaDB/MySQL, Paketassets und Migrationen über Webhosting wurden nicht praktisch ausgeführt; keine visuelle Prüfung in einem interaktiven Browser. PHP-Syntax, Pint, Composer-Validierung und Diff-Prüfung bestanden; bekannte Permission-Versionsbereichswarnung bleibt.
+- Bestehende lokale `.env`, Datenbank und Zugangskonten nicht durch den Assistenten verändert; Oberfläche nicht für die bestehende Installation freigeschaltet. Linux/macOS und konkrete Webhosting-Einschränkungen bleiben praktisch zu prüfen. Vor öffentlichem Betrieb insbesondere APP_ENV/APP_DEBUG, HTTPS, Berechtigungen und Backups festlegen.
+
 ## Betrieb und wichtige Befehle
 
 ### Lokal starten und ersten Zugang anlegen
@@ -355,7 +380,7 @@ Tests nutzen SQLite im Arbeitsspeicher. Für neue Checkouts und die Ersteinricht
 ### Bekannte Verbesserungen
 
 - [ ] Spatie-Versionsvorgabe von `*` auf einen passenden Versionsbereich begrenzen; Lockdatei aktualisieren und prüfen.
-- [ ] `composer setup` und `composer dev` für den gewünschten reinen API-Betrieb überprüfen; die Vorlage enthält noch Frontend-Schritte.
+- [x] `composer setup` durch den interaktiven API-Einrichtungsassistenten ersetzt; ohne npm-Schritte. `composer dev` bleibt der Vorlagenbefehl; empfohlen wird der ausgegebene `artisan serve`-Aufruf.
 - [ ] Standard-`DatabaseSeeder` prüfen: er enthält noch die Laravel-Testbenutzeranlage. Nicht ungeprüft für reale Umgebungen verwenden.
 - [ ] Aufbewahrungsdauer für Telescope-Aufzeichnungen festlegen; bei Bedarf automatische Bereinigung und lokalen Scheduler einrichten.
 - [ ] Veraltete Informationen in `AGENTS.md` erst aktualisieren, wenn die ursprüngliche Vorgabe zum Nichtändern aufgehoben wird.

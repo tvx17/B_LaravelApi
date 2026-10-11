@@ -20,6 +20,6 @@ return [
         'db:wipe', 'migrate:fresh', 'migrate:reset', 'migrate:refresh', 'migrate:rollback',
         'key:generate', 'env:*', 'queue:work', 'queue:listen', 'schedule:work',
         'schedule:run', 'vendor:publish', 'package:discover',
-        'runner:create-user', 'admin:grant-access', 'make:filament-user',
+        'runner:create-user', 'admin:grant-access', 'make:filament-user', 'setup:*',
     ],
 ];

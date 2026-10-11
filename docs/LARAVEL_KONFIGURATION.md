@@ -1,6 +1,6 @@
 # Laravel-Konfigurationsreferenz
 
-Stand: 2026-10-08. Automatisch aus der lokalen Laravel-Konfiguration erzeugt.
+Stand: 2026-10-11. Automatisch aus der lokalen Laravel-Konfiguration erzeugt.
 
 Diese Referenz umfasst alle aktuell geladenen Konfigurationsgruppen einschließlich Paketdefaults. Werte stammen aus dem CLI-Bootstrap; Middleware kann sie pro Request ändern. Keine vollständige `.env` wird kopiert. Zugangsdaten, Schlüssel und URLs werden vorsorglich maskiert; maskierte Werte ausschließlich lokal prüfen. Pfade sind Momentaufnahmen dieses Rechners. Objektwerte werden typisiert dargestellt.
 
@@ -146,7 +146,8 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
         "package:discover",
         "runner:create-user",
         "admin:grant-access",
-        "make:filament-user"
+        "make:filament-user",
+        "setup:*"
     ]
 }
 ```

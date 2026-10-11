@@ -1,0 +1,56 @@
+# Einrichtung nach dem Klonen
+
+Im Projektverzeichnis genügt `composer setup`. Alternativ startet `php scripts/Setup.php` denselben Assistenten. Er setzt kein vorhandenes `vendor/` oder `.env` voraus. Windows ist die primäre Plattform; PHP und Composer erlauben denselben Ablauf unter Linux/macOS.
+
+## Voraussetzungen
+
+- PHP ab 8.3, Composer im PATH und die vom Lockfile benötigten PHP-Erweiterungen. Composer prüft die Plattform beim Installieren.
+- Für SQLite: `pdo_sqlite`; für MariaDB/MySQL: `pdo_mysql`, erreichbarer Datenbankserver und Zugangsdaten. Serverinstallation erfolgt separat.
+- Beschreibbares Projektverzeichnis und ein interaktives Terminal für verdeckte Passworteingaben. Keine automatisierte Ausführung mit `--no-interaction`.
+- Hinweis für Windows: Laravel Pail benötigt PCNTL und läuft dort nicht nativ. Der Assistent startet Pail nicht. Kopia wird separat eingerichtet, siehe `KOPIA_SETUP.md`.
+
+## Ablauf und Bestätigungen
+
+Jeder Schritt fragt nach Zustimmung; Enter lehnt ab. Abhängigkeiten, `.env` und Anwendungsschlüssel sind für einen neuen Checkout erforderlich. Bei Fehlern endet die Einrichtung; bereits bestätigte Schritte werden nicht zurückgerollt. Ein erneuter Aufruf ist möglich.
+
+1. Composer installiert einschließlich Entwicklungspaketen aus `composer.lock`, zunächst ohne Laravel-Hooks.
+2. Eine fehlende `.env` entsteht aus `.env.example`: sichere Projektstandards, keine übernommenen lokalen Geheimnisse. Ein vorhandener Anwendungsschlüssel bleibt erhalten.
+3. Datenbank auswählen: SQLite, MariaDB oder MySQL; danach vorhandene oder neue Datenbank. SQLite-Dateien werden nicht überschrieben; ihr Elternverzeichnis muss existieren. Neue Serverdatenbanken benötigen `CREATE DATABASE`-Rechte und einen noch freien Namen. Nach Verbindungstest wird die Speicherung separat bestätigt. Eine zuvor bestätigte neue Datenbank bleibt bei Ablehnung dieser Speicherung bestehen.
+4. API-URL und Frontend-Origin konfigurieren, standardmäßig `http://localhost:8000` und `http://localhost:9200`. Für diesen Session-Ablauf denselben Host und dasselbe Schema verwenden. CORS erlaubt Cookies; das Frontend muss Credentials und CSRF mitsenden. Details stehen in der README.
+5. Migrationen für das angezeigte Ziel, Paketregistrierung, Filament-Assets und Permission-Cache bestätigen. Migrationen verwenden kein `fresh`/`reset`; eigene spätere Migrationen trotzdem vor Ausführung prüfen.
+6. Optional einen Administrator anlegen oder einem bestehenden Konto beide Rechte vergeben: `access-admin-panel` und `run-artisan-runner-ui`. Bestehender Name und Passwort bleiben erhalten. Neue Passwörter benötigen mindestens zwölf Zeichen und eine verdeckte Bestätigung. Separat wiederholbar: `php artisan setup:admin`.
+7. Runner-Aktivierung, öffentlichen Storage-Link und lokalen Brain-Scan bestätigen.
+
+## Nach der Einrichtung
+
+Der Assistent zeigt API-, Filament-, Artisan-, Telescope- und Brain-Adressen sowie einen passenden Serverbefehl. Ausgelassene Schritte können deren Nutzbarkeit einschränken. `storage:link` kann unter Windows entsprechende Symlink-Rechte benötigen.
+
+Server, Queue und Backup werden separat gestartet. Socialite bleibt ohne Anbieter; Media Library benötigt weiterhin ein geeignetes Modell und Upload-Endpunkte. Kopia-Repository, Sicherungsregeln und Wiederherstellungstest bleiben separat einzurichten. `.env`, SQLite-Dateien und Passwörter niemals einchecken. Für Produktion HTTPS, Debug-Modus und Zugriffsrechte gesondert prüfen.
+
+## Einrichtung im Browser
+
+Der grafische Assistent liegt unter `/setup.php`, lokal beispielsweise `http://localhost:8000/setup.php`. Er läuft unabhängig von Laravel, funktioniert also auch ohne `vendor/`, `.env`, Anwendungsschlüssel oder Session-Tabellen. Es werden keine zusätzlichen Composer-/npm-Pakete benötigt. Seine Actions liegen in `app/Actions/Setup/`; das reine PHP-Template in `resources/views/setup/wizard.php`. Filament und Artisan behalten ihre bisherigen Präfixe.
+
+### Ohne eigenen Terminalzugang vorbereiten
+
+1. Projekt auf einen bereits laufenden PHP-Webserver kopieren oder über dessen Verwaltungsoberfläche klonen. Den Document Root ausdrücklich auf `public/` setzen. Das Projektverzeichnis darüber darf nicht öffentlich ausgeliefert werden.
+2. Mit Texteditor oder Hosting-Dateimanager im Projektverzeichnis eine Datei namens `.setup-access` erstellen. Als einzigen Inhalt einen eigenen zufälligen Schlüssel mit mindestens 32 Zeichen aus einem Passwortmanager verwenden. Kein Beispielpasswort übernehmen. Unter Windows darauf achten, dass der Dateiname nicht `.setup-access.txt` lautet. Dateizugriff auf den Webserver-Benutzer beschränken.
+3. `/setup.php` aufrufen und diesen Schlüssel eingeben. Lokal sind HTTP und HTTPS möglich; bei externem Zugriff ist HTTPS verpflichtend. HTTPS muss vom Webserver als `HTTPS=on` gemeldet werden; vorgeschaltete Proxys entsprechend konfigurieren. Beliebige Forwarded-Header werden nicht als Vertrauensnachweis verwendet.
+4. Schritte ausführen oder überspringen. Vor jeder Ausführung das Bestätigungsfeld aktivieren. Zurückliegende Schritte sind über die Navigation erneut erreichbar. Die Datenbankseite bestätigt Anlage, Verbindungstest und Speicherung gemeinsam; bestehende Dateien werden nicht überschrieben. Bei MariaDB/MySQL das Passwort bei jeder Neukonfiguration erneut eingeben.
+5. In der Adressübersicht „Abschließen und sperren“ bestätigen. Dadurch entsteht `.setup-complete`, und `.setup-access` wird entfernt. Die Anwendung selbst läuft weiter. Auch eine anschließend neu angelegte Zugangsdatei hebt die Abschlusssperre nicht auf.
+
+### Servervoraussetzungen und Grenzen
+
+Ein Browser kann keinen PHP-Webserver starten. Lokal muss dieser bereits laufen, etwa über eine vorhandene Entwicklungsumgebung; beim Hosting übernimmt dies der Anbieter. Ein bloßes Öffnen einer PHP-Datei per Doppelklick genügt nicht.
+
+Für Composer-/Artisan-Schritte benötigt der Server PHP-CLI und die erlaubte PHP-Funktion `proc_open`, außerdem temporären Speicher, Schreibrechte und passende Erweiterungen. Composer muss für den Webserver-Benutzer im PATH liegen; alternativ eine serverseitige Variable `COMPOSER_BINARY` mit absolutem Pfad zur vorhandenen `composer.phar` setzen. Ein abweichender PHP-CLI-Pfad lässt sich über die Servervariable `SETUP_PHP_BINARY` angeben. Diese Einstellungen werden nicht als frei editierbare Browserfelder angeboten. PHP-FPM/CGI wird nicht als CLI ausgeführt.
+
+Kein eigener SSH-/CLI-Zugang ist erforderlich, aber das Hosting muss diese Fähigkeiten bereitstellen. Sperrt es Prozessausführung, sind vollständige Installation und Artisan-Schritte über den Browser dort nicht möglich. Alternativ Abhängigkeiten vorab auf einem geeigneten Rechner installieren und `vendor/` hochladen; für Migrationen/Assets wird weiterhin ein geeigneter Server benötigt. Installation kann mehrere Minuten dauern; Webserver-/Proxy-Zeitlimits können den Ablauf trotz aufgehobenem PHP-Zeitlimit abbrechen. Nicht erneut absenden, solange ein Schritt noch läuft.
+
+Die Browser-Sitzung verwendet eigene PHP-Cookies, Formularschutz und ein einstündiges Zugangsfenster, unabhängig von Laravel-Sessions. Parallele Änderungen werden gesperrt; nach zehn falschen Anmeldungen gilt je IP eine 15-minütige Sperre. Schlüssel und Passwörter werden nicht in Formularwerte oder Befehlsargumente übernommen; Prozessausgaben bleiben zum Schutz von Geheimnissen verborgen. Schrittstatus gehört zur Browser-Sitzung; tatsächliche Einstellungen bleiben bei Abmeldung erhalten.
+
+SQLite-Auswahl im Browser ist auf `.sqlite`-Dateien innerhalb von `database/` begrenzt. Andere Pfade sind über den CLI-Assistenten möglich. Alle optionalen Integrationen und offenen Aufgaben aus dem obigen Abschnitt bleiben bestehen. Der Assistent ändert `APP_ENV`/`APP_DEBUG` nicht automatisch: vor öffentlichem Betrieb diese Werte auf Produktion abstimmen.
+
+`.setup-access`, `.setup-complete`, `.setup.lock` und `.setup-login-attempts.json` sind von Git ausgeschlossen. Für eine ausdrücklich gewollte erneute Einrichtung zuerst die Abschlusssperre im Dateimanager entfernen und einen neuen Zugangsschlüssel erstellen. Die bestehende lokale Installation wird durch das Hinzufügen der Oberfläche nicht eingerichtet oder freigeschaltet.
+
+Technische Grundlage: PHP-[Prozessausführung](https://www.php.net/proc-open) und [Session-Cookie-Einstellungen](https://www.php.net/session-set-cookie-params).

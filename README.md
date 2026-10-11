@@ -37,14 +37,22 @@ Unbekannte API-Routen liefern HTTP 404 als JSON, auch ohne Accept-Header. Die St
 ## Neuer Checkout
 
 ```powershell
-composer install
-Copy-Item .env.example .env
-php artisan key:generate
-New-Item -ItemType File -Path database/database.sqlite -ErrorAction SilentlyContinue
-php artisan migrate
+composer setup
 ```
 
-Aktuell verwenden wir SQLite (`DB_CONNECTION=sqlite`); MariaDB ist später vorgesehen. Die lokale Datenbank liegt in `database/database.sqlite` und wird nicht eingecheckt. Die Runner UI verwendet eine Browser-Anmeldung. Ein Frontend-Build ist für die API nicht erforderlich.
+Der interaktive Assistent funktioniert unter Windows, Linux und macOS mit PHP ab 8.3 und Composer im PATH. Alternativ: `php scripts/Setup.php`. Jeder Einrichtungsschritt benötigt eine Bestätigung; Enter bedeutet Nein. Einzelheiten und Voraussetzungen: [Setup-Anleitung](docs/SETUP.md).
+
+Er installiert die gesperrten Composer-Abhängigkeiten, erstellt bei Bedarf `.env` aus der sicheren Vorlage und einen neuen Anwendungsschlüssel. Anschließend wählt man SQLite, MariaDB oder MySQL sowie eine vorhandene oder neue Datenbank, prüft die Verbindung und bestätigt deren Übernahme. Danach folgen API-/Frontend-Adresse, CORS, Migrationen, Paketregistrierung/Filament-Assets, ein optionaler gemeinsamer Administrator, Runner-Aktivierung, Storage-Link und Brain-Scan. Zum Abschluss werden URLs und der Serverbefehl ausgegeben. Bestehende Schlüssel, Konten und nicht ausgewählte Einstellungen bleiben erhalten.
+
+Aktuell verwenden wir SQLite (`DB_CONNECTION=sqlite`); MariaDB ist später vorgesehen. Die lokale Datenbank wird nicht eingecheckt. Ein Frontend-Build ist für die API nicht erforderlich.
+
+### Einrichtung im Browser
+
+Alternativ steht unter `/setup.php` ein grafischer Assistent mit denselben Einrichtungsschritten bereit, zum Beispiel `http://localhost:8000/setup.php`. Er funktioniert auch vor der Laravel-Installation, sofern ein PHP-Webserver bereits `public/` ausliefert.
+
+Die Seite ist standardmäßig gesperrt. Zum Freigeben mit Editor oder Hosting-Dateimanager im Projektverzeichnis die Datei `.setup-access` anlegen und einen eigenen zufälligen Zugangsschlüssel mit mindestens 32 Zeichen eintragen. Diesen auf der Setup-Seite eingeben. Jede Änderung wird einzeln bestätigt; der Abschluss sperrt die Seite wieder. Außerhalb von localhost ist HTTPS erforderlich.
+
+Es ist kein eigener Terminalzugang nötig. PHP-CLI, Composer und erlaubte Prozessausführung müssen jedoch auf dem Server vorhanden sein. Voraussetzungen, Grenzen und Freigabe: [Browser-Setup](docs/SETUP.md#einrichtung-im-browser).
 
 ## Rollen und Berechtigungen
 
@@ -71,7 +79,7 @@ Für den späteren Wechsel auf MariaDB `DB_CONNECTION=mariadb` sowie `DB_HOST`, 
 
 ## Artisan Runner UI
 
-`codesquirrel/artisan-runner-ui` ist installiert. Die Konfiguration liegt in `config/artisan-runner-ui.php`. Lokal ist die UI aktiviert. Neue Checkouts starten mit `ARTISAN_RUNNER_UI_ENABLED=false`; zum Aktivieren den Wert in `.env` auf `true` setzen und `php artisan config:clear` ausführen.
+`codesquirrel/artisan-runner-ui` ist installiert. Die Konfiguration liegt in `config/artisan-runner-ui.php`. Lokal und in der Projektvorlage ist die UI aktiviert (`ARTISAN_RUNNER_UI_ENABLED=true`); Zugriff erfordert Anmeldung und das Runner-Recht. Zum Deaktivieren den Wert in `.env` auf `false` setzen und `php artisan config:clear` ausführen.
 
 Die Oberfläche liegt unter `/artisan`, Befehlsausführung unter `/artisan/run`. Anmeldung: `/artisan/login`; Konto: `/artisan/account`; Abmeldung: `/artisan/logout`. Der Präfix ist fest in der Paketkonfiguration gesetzt und wird nicht durch `.env` überschrieben. Die Middleware `web`, `auth:web` und `can:run-artisan-runner-ui` schützt sowohl die Oberfläche als auch die Befehlsausführung. Die Paketkonfiguration erlaubt ausschließlich die Umgebungen `local`, `qa`, `staging` und `uat`.
 

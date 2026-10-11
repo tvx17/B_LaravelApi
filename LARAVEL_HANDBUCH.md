@@ -1,6 +1,6 @@
 # Laravel: Einstellungen, Erweiterungen und Aufrufe
 
-Stand: 08.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projektstand unter Windows. Konfiguration ist keine Zusage, dass jede optionale Integration schon genutzt wird.
+Stand: 11.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projektstand unter Windows. Konfiguration ist keine Zusage, dass jede optionale Integration schon genutzt wird.
 
 ## Vollständige Referenzen
 
@@ -31,7 +31,7 @@ php artisan migrate
 php artisan serve --host=localhost --port=8000
 ```
 
-Nur für einen neuen Checkout zusätzlich `.env.example` nach `.env` kopieren, eine SQLite-Datei anlegen und `php artisan key:generate` ausführen. Einen vorhandenen Anwendungsschlüssel nicht bei jedem Start erneuern.
+Für einen neuen Checkout bevorzugt `composer setup` verwenden. Alternativ bietet `/setup.php` einen unabhängigen Browser-Assistenten, der auch ohne `vendor/` und `.env` startet. Er ist standardmäßig gesperrt und benötigt eine selbst angelegte `.setup-access`-Datei. Webserver, PHP-CLI und Prozessausführung müssen vorhanden sein; eigener Terminalzugang ist nicht erforderlich. Anleitung: [Setup](docs/SETUP.md#einrichtung-im-browser). Einen vorhandenen Anwendungsschlüssel nicht bei jedem Start erneuern.
 
 ```powershell
 php artisan config:clear     # lokale Konfigurationsänderungen übernehmen
@@ -126,7 +126,7 @@ Runner-Konfiguration: `allowed=[]` erlaubt grundsätzlich alle Befehle außerhal
 tinker, serve, down, up, db:wipe, migrate:fresh, migrate:reset,
 migrate:refresh, migrate:rollback, key:generate, env:*, queue:work,
 queue:listen, schedule:work, schedule:run, vendor:publish,
-package:discover, runner:create-user, admin:grant-access, make:filament-user
+package:discover, runner:create-user, admin:grant-access, make:filament-user, setup:*
 ```
 
 Permission verwendet Guard `web`, Standardcache mit 24 Stunden Ablauf; Teams, Wildcard-Berechtigungen und Passport-Client-Credentials sind aus. Middleware-Aliase: `role`, `permission`, `role_or_permission`; einzelne Rechte über `can`. Methoden wie `givePermissionTo`, `assignRole`, `revokePermissionTo` halten den Paketcache aktuell.
@@ -217,7 +217,7 @@ npm run dev                  # Vite-Entwicklungsserver
 npm run build                # Vite-Build
 ```
 
-Composer-Hooks: Autoload-Dump registriert Pakete und veröffentlicht Filament-Assets; Update publiziert Laravel-Assets. `composer test` leert Konfiguration und führt Tests aus. `composer setup` enthält zusätzlich `.env`-Anlage, Schlüsselgenerierung, Migration und npm-Schritte; bei bestehender Installation nicht unbesehen ausführen. `composer dev` ruft `artisan dev` der Vorlage auf; für das reine API-Projekt bewusst `artisan serve` und bei Bedarf Queue separat starten.
+Composer-Hooks: Autoload-Dump registriert Pakete und veröffentlicht Filament-Assets; Update publiziert Laravel-Assets. `composer test` leert Konfiguration und führt Tests aus. `composer setup` startet die bestätigungspflichtige, plattformübergreifende Einrichtung: Abhängigkeiten, sichere `.env`, Schlüssel, Datenbankwahl, CORS, Migrationen, Paketassets und optionales Admin-Konto. Vorhandene Schlüssel und Kontodaten bleiben erhalten; npm ist nicht erforderlich. Anleitung: [Setup](docs/SETUP.md). `composer dev` ruft `artisan dev` der Vorlage auf; für das reine API-Projekt bewusst `artisan serve` und bei Bedarf Queue separat starten.
 
 Die optimierte Autoload-Erzeugung war unter Windows mehrfach langsam. Arbeitsprotokoll enthält den verwendeten temporären Workaround; `optimize-autoloader=true` bleibt Projektvorgabe. Telescope ist vom Auto-Discovery ausgeschlossen und wird nur lokal über den AppServiceProvider registriert.
 
