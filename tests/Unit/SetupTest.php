@@ -17,6 +17,7 @@ class SetupTest extends TestCase
         }
         try {
             copy($root.'/app/Support/SetupRuntime.php', $fixture.'/app/Support/SetupRuntime.php');
+            copy($root.'/app/Support/SetupProcess.php', $fixture.'/app/Support/SetupProcess.php');
             foreach (['Setup.php', 'SetupEnvironment.php'] as $script) {
                 copy($root.'/scripts/'.$script, $fixture.'/scripts/'.$script);
             }

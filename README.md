@@ -52,7 +52,11 @@ Alternativ steht unter `/setup.php` ein grafischer Assistent mit denselben Einri
 
 Die Seite ist standardmäßig gesperrt. Zum Freigeben mit Editor oder Hosting-Dateimanager im Projektverzeichnis die Datei `.setup-access` anlegen und einen eigenen zufälligen Zugangsschlüssel mit mindestens 32 Zeichen eintragen. Diesen auf der Setup-Seite eingeben. Jede Änderung wird einzeln bestätigt; der Abschluss sperrt die Seite wieder. Außerhalb von localhost ist HTTPS erforderlich.
 
+Zu Beginn stehen English (Standard), Deutsch, Français, Italiano und Español zur Auswahl. Zum Ausführen eines Schritts genügt die Schaltfläche; zusätzliche Bestätigungshaken entfallen. Abschlusslinks verwenden den aktuellen Aufrufhost samt Schema und Port, beispielsweise `http://localhost:8090/filament/login`.
+
 Es ist kein eigener Terminalzugang nötig. PHP-CLI, Composer und erlaubte Prozessausführung müssen jedoch auf dem Server vorhanden sein. Voraussetzungen, Grenzen und Freigabe: [Browser-Setup](docs/SETUP.md#einrichtung-im-browser).
+
+Mit JavaScript zeigt die Oberfläche laufende Teilbefehle, Laufzeit und regelmäßige Aktivitätsmeldungen. Ausbleibende Statusmeldungen werden kenntlich gemacht; bei Verbindungsabbruch nicht erneut starten, da die Aufgabe serverseitig weiterlaufen kann. Auch `composer setup` meldet Start, Dauer und Abschluss längerer Unterbefehle.
 
 ## Rollen und Berechtigungen
 

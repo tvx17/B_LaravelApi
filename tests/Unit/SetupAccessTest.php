@@ -32,7 +32,7 @@ class SetupAccessTest extends TestCase
         (new SetupAccess($this->root))->key();
     }
 
-    public function test_setup_requires_key_csrf_confirmation_and_an_unexpired_session(): void
+    public function test_setup_requires_key_csrf_execute_operation_and_an_unexpired_session(): void
     {
         $key = bin2hex(random_bytes(32));
         file_put_contents($this->root.'/.setup-access', $key);
@@ -41,9 +41,9 @@ class SetupAccessTest extends TestCase
         $this->assertTrue($access->login($key, '127.0.0.1'));
         $session = ['setup_access' => hash('sha256', $key), 'setup_expires' => time() + 60, 'setup_csrf' => 'test-csrf'];
         $this->assertTrue($access->authenticated($session));
-        $access->verifyPost(['csrf' => 'test-csrf', 'confirm' => 'yes'], $session);
+        $access->verifyPost(['csrf' => 'test-csrf', 'operation' => 'run'], $session);
         $this->assertFalse($access->authenticated(array_replace($session, ['setup_expires' => time() - 1])));
-        foreach ([['csrf' => 'wrong', 'confirm' => 'yes'], ['csrf' => 'test-csrf'], ['csrf' => 'test-csrf', 'confirm' => 'no']] as $post) {
+        foreach ([['csrf' => 'wrong', 'operation' => 'run'], ['csrf' => 'test-csrf'], ['csrf' => 'test-csrf', 'operation' => 'skip']] as $post) {
             try {
                 $access->verifyPost($post, $session);
                 $this->fail('Unauthorized setup mutation accepted.');

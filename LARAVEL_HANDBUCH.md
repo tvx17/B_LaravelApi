@@ -33,6 +33,8 @@ php artisan serve --host=localhost --port=8000
 
 Für einen neuen Checkout bevorzugt `composer setup` verwenden. Alternativ bietet `/setup.php` einen unabhängigen Browser-Assistenten, der auch ohne `vendor/` und `.env` startet. Er ist standardmäßig gesperrt und benötigt eine selbst angelegte `.setup-access`-Datei. Webserver, PHP-CLI und Prozessausführung müssen vorhanden sein; eigener Terminalzugang ist nicht erforderlich. Anleitung: [Setup](docs/SETUP.md#einrichtung-im-browser). Einen vorhandenen Anwendungsschlüssel nicht bei jedem Start erneuern.
 
+Browser-Sprachen: English (Standard), Deutsch, Français, Italiano und Español. „Execute step“ beziehungsweise die übersetzte Schaltfläche genügt zur Ausführung; zusätzliche Bestätigungshaken entfallen. Status- und Fehlermeldungen folgen der Auswahl. Abschlusslinks verwenden Schema, Host und Port des aktuellen Aufrufs statt APP_URL. Die Sprachwahl verändert Laravel-APP_LOCALE nicht.
+
 ```powershell
 php artisan config:clear     # lokale Konfigurationsänderungen übernehmen
 php artisan route:list      # tatsächliche registrierte Routen anzeigen

@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\SetupProcess;
 use App\Support\SetupRuntime;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -9,6 +10,7 @@ use Symfony\Component\Console\Question\Question;
 // Standalone entry point: works before vendor/ or .env exist.
 chdir(dirname(__DIR__));
 require_once __DIR__.'/../app/Support/SetupRuntime.php';
+require_once __DIR__.'/../app/Support/SetupProcess.php';
 
 function setupConfirm(string $question): bool
 {
@@ -23,10 +25,23 @@ function setupConfirm(string $question): bool
 
 function setupRun(array $arguments): void
 {
+    $label = $arguments[2] ?? 'Einrichtung';
+    $label = in_array($label, ['install', 'config:clear', 'route:clear', 'migrate', 'package:discover', 'filament:upgrade', 'permission:cache-reset', 'setup:admin', 'storage:link', 'brain:scan'], true) ? $label : 'Einrichtung';
+    $start = microtime(true);
+    echo '[Start] '.$label.PHP_EOL;
     $process = proc_open($arguments, [STDIN, STDOUT, STDERR], $pipes);
-    if (! is_resource($process) || proc_close($process) !== 0) {
+    if (! is_resource($process)) {
+        throw new RuntimeException('Einrichtungsprozess konnte nicht gestartet werden.');
+    }
+    $exit = SetupProcess::wait($process, function () use ($label, $start): void {
+        if ($label !== 'setup:admin') {
+            echo '[Aktiv seit '.(int) (microtime(true) - $start).' s] '.$label.' läuft; auf Prozessabschluss warten.'.PHP_EOL;
+        }
+    }, 5);
+    if ($exit !== 0) {
         throw new RuntimeException('Ein Einrichtungsschritt ist fehlgeschlagen. Keine weiteren Schritte ausgeführt.');
     }
+    echo '[Fertig nach '.(int) (microtime(true) - $start).' s] '.$label.PHP_EOL;
 }
 
 try {

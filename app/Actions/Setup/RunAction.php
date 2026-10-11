@@ -2,7 +2,9 @@
 
 namespace App\Actions\Setup;
 
+use App\Support\SetupProcess;
 use App\Support\SetupRuntime;
+use Closure;
 use Dotenv\Dotenv;
 use PDO;
 use RuntimeException;
@@ -26,7 +28,7 @@ final class RunAction
         'finish' => 'Adressen und Abschluss',
     ];
 
-    public function __construct(private readonly string $root) {}
+    public function __construct(private readonly string $root, private readonly ?Closure $progress = null) {}
 
     public function environment(): array
     {
@@ -43,6 +45,7 @@ final class RunAction
         if (! array_key_exists($step, self::STEPS)) {
             throw new RuntimeException('Unbekannter Einrichtungsschritt.');
         }
+        $this->report(self::STEPS[$step]);
         if ($step === 'install') {
             $this->process(SetupRuntime::composer());
 
@@ -293,7 +296,17 @@ final class RunAction
             if (! is_resource($process)) {
                 throw new RuntimeException('Einrichtungsprozess konnte nicht gestartet werden. Prozessrechte prüfen.');
             }
-            $exit = proc_close($process);
+            $label = in_array($arguments[2] ?? '', ['install', 'config:clear', 'route:clear', 'migrate', 'package:discover', 'filament:upgrade', 'permission:cache-reset', 'storage:link', 'brain:scan'], true) ? $arguments[2] : 'Administratorkonto';
+            $bytes = 0;
+            $lastOutput = microtime(true);
+            $exit = SetupProcess::wait($process, function () use ($label, $output, $errors, &$bytes, &$lastOutput): void {
+                $size = (fstat($output)['size'] ?? 0) + (fstat($errors)['size'] ?? 0);
+                if ($size > $bytes) {
+                    $bytes = $size;
+                    $lastOutput = microtime(true);
+                }
+                $this->report($label.' läuft', (int) (microtime(true) - $lastOutput));
+            });
             if ($exit !== 0) {
                 rewind($output);
                 rewind($errors);
@@ -301,10 +314,18 @@ final class RunAction
                 $label = in_array($arguments[2] ?? '', ['config:clear', 'route:clear', 'migrate', 'package:discover', 'filament:upgrade', 'permission:cache-reset', 'storage:link', 'brain:scan'], true) ? $arguments[2] : 'Composer/Admin-Einrichtung';
                 throw new RuntimeException($label.' fehlgeschlagen (Exit-Code '.$exit.'). '.$diagnosis);
             }
+            $this->report($label.' abgeschlossen');
         } finally {
             fclose($stdin);
             fclose($output);
             fclose($errors);
+        }
+    }
+
+    private function report(string $message, ?int $silentSeconds = null): void
+    {
+        if ($this->progress) {
+            ($this->progress)(['message' => $message, 'silent_seconds' => $silentSeconds]);
         }
     }
 }

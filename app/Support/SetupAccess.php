@@ -40,8 +40,8 @@ final class SetupAccess
         if (! $this->authenticated($session)
             || empty($session['setup_csrf'])
             || ! hash_equals($session['setup_csrf'], (string) ($post['csrf'] ?? ''))
-            || ($post['confirm'] ?? '') !== 'yes') {
-            throw new RuntimeException('Zugang, Formularschutz oder ausdrückliche Bestätigung fehlt. Bitte erneut anmelden und den Schritt bestätigen.');
+            || ($post['operation'] ?? '') !== 'run') {
+            throw new RuntimeException('Zugang oder Formularschutz fehlt. Bitte erneut anmelden.');
         }
     }
 
