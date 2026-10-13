@@ -17,7 +17,7 @@ return [
     // Never shown or runnable (wildcards allowed)
     'denied' => [
         'tinker', 'serve', 'down', 'up',
-        'db:wipe', 'migrate:fresh', 'migrate:reset', 'migrate:refresh', 'migrate:rollback',
+        'db:wipe', 'migrate:fresh', 'migrate:reset', 'migrate:refresh', 'migrate:rollback', 'migrate:generate',
         'key:generate', 'env:*', 'queue:work', 'queue:listen', 'schedule:work',
         'schedule:run', 'vendor:publish', 'package:discover',
         'runner:create-user', 'admin:grant-access', 'make:filament-user', 'setup:*',

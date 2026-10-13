@@ -290,6 +290,21 @@ Standardmäßig bleiben vorhandene Slugs bei Titeländerungen erhalten (`onUpdat
 
 Der Installationsassistent installiert und registriert das Paket bereits über seine Composer-/Paketschritte. Keine zusätzliche `.env`-Einstellung oder Paketmigration erforderlich. Noch kein Anwendungsmodell nutzt den Trait. Die benötigten `mbstring`-Funktionen werden hier durch den vorhandenen Symfony-Polyfill bereitgestellt; Windows-Nutzung ist geprüft. [Paketdokumentation](https://github.com/cviebrock/eloquent-sluggable).
 
+## Migrationen aus vorhandenen Datenbanken erzeugen
+
+Kitloong Laravel Migrations Generator 7.4.0 ist als Entwicklungsabhängigkeit installiert. Er erzeugt Laravel-Migrationen aus einem vorhandenen Datenbankschema einschließlich Indizes und Fremdschlüsseln. SQLite sowie MariaDB/MySQL werden unterstützt; Windows benötigt dafür keine Linux-Erweiterung, sondern den passenden PDO-Treiber.
+
+```powershell
+php artisan help migrate:generate
+php artisan migrate:generate --connection=sqlite --tables=users --path=database/schema-export --skip-log
+```
+
+Für MariaDB/MySQL `--connection=mariadb` bzw. `--connection=mysql` verwenden und die entsprechende Verbindung vorher in Laravel konfigurieren. Ohne `--tables` werden alle berücksichtigten Tabellen exportiert. Zusammengehörige Tabellen für Fremdschlüssel gemeinsam auswählen.
+
+Das Beispiel schreibt in einen separaten Ordner und verändert durch `--skip-log` die Migrationstabelle nicht. Ohne `--path` ist `database/migrations` das Ziel; vorhandene Projektmigrationen deshalb nicht ungeprüft durch weitere Tabellenanlagen ergänzen. Generierte Dateien vor Übernahme und Ausführung auf einer separaten Datenbank prüfen. SQLite-Fremdschlüssel in nachträglichen `ALTER TABLE`-Migrationen sind eingeschränkt; beim späteren Wechsel zu MariaDB auch Datentypen, Indizes und Constraints prüfen. Das Werkzeug exportiert keine Datensätze und überträgt keine Daten zwischen Datenbanken.
+
+Der CLI- und Browser-Installationsassistent installiert und registriert das Paket über die bestehenden Composer-Schritte. Kein zusätzlicher Benutzer, keine Paketmigration und kein automatischer Schemaexport nötig. Bei `composer install --no-dev` steht der Befehl nicht zur Verfügung. Paketdefaults werden automatisch als `migrations-generator` geladen; keine eigene Konfigurationsdatei nötig. `migrate:generate` ist im Artisan Runner gesperrt, da es Quellcodedateien und ohne `--skip-log` auch den Migrationsstand verändern kann. [Paketdokumentation](https://github.com/kitloong/laravel-migrations-generator).
+
 ## API-Antwortformat
 
 Eigene API-Actions verwenden den Trait `App\Traits\ApiResponse`. Jede Antwort enthält `code` (fünfstelliger String), `status` (Boolean), `data` und `responseStatus` (zusätzlich zum tatsächlichen HTTP-Status).

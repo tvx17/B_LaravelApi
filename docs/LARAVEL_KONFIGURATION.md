@@ -136,6 +136,7 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
         "migrate:reset",
         "migrate:refresh",
         "migrate:rollback",
+        "migrate:generate",
         "key:generate",
         "env:*",
         "queue:work",
@@ -1221,6 +1222,21 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
     "default_loading_attribute_value": null,
     "prefix": "",
     "force_lazy_loading": true
+}
+```
+
+## migrations-generator
+
+```json
+{
+    "migration_template_path": "C:\\Entwicklung\\Projekte\\Boilerplates\\LaravelAPI\\vendor\\kitloong\\laravel-migrations-generator\\config/../stubs/migration.generate.stub",
+    "migration_target_path": "C:\\Entwicklung\\Projekte\\Boilerplates\\LaravelAPI\\database/migrations",
+    "filename_pattern": {
+        "table": "[datetime]_create_[name]_table.php",
+        "view": "[datetime]_create_[name]_view.php",
+        "procedure": "[datetime]_create_[name]_proc.php",
+        "foreign_key": "[datetime]_add_foreign_keys_to_[name]_table.php"
+    }
 }
 ```
 

@@ -48,6 +48,7 @@ Stand: 13.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed
 | guzzlehttp/uri-template | v2.0.1 | Transitiv, Laufzeit |
 | hamcrest/hamcrest-php | v3.0.0 | Transitiv, Entwicklung |
 | kirschbaum-development/eloquent-power-joins | 4.3.4 | Transitiv, Laufzeit |
+| kitloong/laravel-migrations-generator | v7.4.0 | Direkt, Entwicklung |
 | laramint/laravel-brain | v2.7.1 | Direkt, Entwicklung |
 | laramint/laravel-stress | v1.0.3 | Transitiv, Entwicklung |
 | laravel/agent-detector | v2.0.4 | Transitiv, Entwicklung |

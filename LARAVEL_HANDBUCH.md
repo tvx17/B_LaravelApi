@@ -4,8 +4,8 @@ Stand: 13.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projekt
 
 ## Vollständige Referenzen
 
-- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 30 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
-- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 182 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
+- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 31 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
+- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 183 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
 - [Arbeitsprotokoll und offene Aufgaben](PROJEKTDOKUMENTATION.md).
 - [E-Mail-Verifizierung: Paketprüfung und native Laravel-Integration](docs/EMAIL_VERIFIZIERUNG_PRUEFUNG.md): API eingerichtet; echte Mailzustellung separat konfigurieren.
 - [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).
@@ -132,7 +132,7 @@ Runner-Konfiguration: `allowed=[]` erlaubt grundsätzlich alle Befehle außerhal
 
 ```text
 tinker, serve, down, up, db:wipe, migrate:fresh, migrate:reset,
-migrate:refresh, migrate:rollback, key:generate, env:*, queue:work,
+migrate:refresh, migrate:rollback, migrate:generate, key:generate, env:*, queue:work,
 queue:listen, schedule:work, schedule:run, vendor:publish,
 package:discover, runner:create-user, admin:grant-access, make:filament-user, setup:*
 ```
@@ -200,6 +200,8 @@ Trait: `app/Traits/ApiResponse.php`; Enums: `app/Enums/Api/`. Antwortfelder: `co
 Zentrale Fehlerbehandlung für `/` und `/api/*`; Feldfehler in `data.errors`, Meldung in `data.message`. Interne 500-Details werden nicht ausgeliefert. Browserprotokolle, Preflight und CSRF-Initialisierung verwenden ihr jeweiliges Format.
 
 ## Entwicklungswerkzeuge
+
+Kitloong Laravel Migrations Generator 7.4.0 (`kitloong/laravel-migrations-generator`, `require-dev`) erzeugt Migrationen aus vorhandenen Schemata; keine eigene URL. Aufruf: `php artisan help migrate:generate`. Beispiel: `php artisan migrate:generate --connection=sqlite --tables=users --path=database/schema-export --skip-log`. Für MariaDB/MySQL den konfigurierten Verbindungsnamen verwenden. Paketdefaults unter `migrations-generator` werden automatisch geladen; Ziel ohne `--path`: `database/migrations`. Keine eigene Konfigurationsdatei, Paketmigration oder Benutzeranlage nötig. Setup installiert und registriert das Paket bereits; kein automatischer Export. Im Runner gesperrt; mit `--no-dev` nicht installiert. Dateien vor Übernahme auf Duplikate, Datentypen und Fremdschlüssel prüfen; keine Datenübertragung. Windows/SQLite-Export und Wiederanwendung werden im Integrationstest geprüft; MariaDB/MySQL benötigen `pdo_mysql` und einen erreichbaren Server. Details in der README.
 
 | Paket / Version | Aufruf und Status |
 | --- | --- |

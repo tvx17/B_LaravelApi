@@ -24,6 +24,8 @@ Jeder Schritt fragt nach Zustimmung; Enter lehnt ab. Abhängigkeiten, `.env` und
 6. Optional einen Administrator anlegen oder einem bestehenden Konto beide Rechte vergeben: `access-admin-panel` und `run-artisan-runner-ui`. Bestehender Name und Passwort bleiben erhalten. Neue Passwörter benötigen mindestens zwölf Zeichen und eine verdeckte Bestätigung. Separat wiederholbar: `php artisan setup:admin`.
 7. Runner-Aktivierung, öffentlichen Storage-Link und lokalen Brain-Scan bestätigen.
 
+Kitloong Laravel Migrations Generator wird als Entwicklungsabhängigkeit über den Composer-Schritt installiert und automatisch registriert. Keine Paketmigration, Benutzeranlage oder zusätzliche Assistenten-Abfrage nötig. Der Assistent exportiert kein Schema. Spätere Exporte bewusst per CLI mit separatem `--path` und `--skip-log` starten; Beispiele in der README. Bei Installation mit `--no-dev` fehlt dieses Werkzeug.
+
 ## Nach der Einrichtung
 
 Der Assistent zeigt API-, Filament-, Artisan-, Telescope- und Brain-Adressen sowie einen passenden Serverbefehl. Ausgelassene Schritte können deren Nutzbarkeit einschränken. `storage:link` kann unter Windows entsprechende Symlink-Rechte benötigen.
