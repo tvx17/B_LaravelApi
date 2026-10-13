@@ -94,6 +94,12 @@ $field = function (string $name, string $label, string $type = 'text') use ($esc
                         <p><?= $h('API und Frontend benötigen denselben Host und dasselbe Schema. Verschiedene Ports sind möglich. Frontend muss Cookies, CSRF und Credentials mitsenden.') ?></p>
                         <?php $field('api', 'API-URL', 'url');
                         $field('frontend', 'Frontend-Origin', 'url') ?>
+                    <?php } elseif ($step === 'verification') { ?>
+                        <p><?= $h('Native E-Mail-Verifizierung ist aktiv. Keine zusätzlichen Pakete oder Migrationen erforderlich. Bestehende Konten bleiben unverändert.') ?></p>
+                        <p><?= $h('Für echte Bestätigungsmails SMTP oder einen anderen Maildienst in .env konfigurieren. APP_URL muss die öffentliche API-Adresse sein; AUTH_VERIFICATION_EXPIRE bestimmt die Linkdauer in Minuten.') ?></p>
+                        <dl><dt>MAIL_MAILER</dt><dd><?= $escape($environment['MAIL_MAILER'] ?? 'log') ?></dd><dt>APP_URL</dt><dd><?= $escape($environment['APP_URL'] ?? '') ?></dd><dt>AUTH_VERIFICATION_EXPIRE</dt><dd><?= $escape((int) ($environment['AUTH_VERIFICATION_EXPIRE'] ?? 60)) ?></dd></dl>
+                        <p><?= $h('MAIL_MAILER=log schreibt Bestätigungsmails nur in das Laravel-Log. Hier wird keine Testmail gesendet und kein Benutzer automatisch verifiziert.') ?></p>
+                        <p><?= $h('Der Bestätigungslink benötigt eine Anmeldung desselben Benutzers. API-Login sowie Filament-/Runner-Zugriff werden nicht pauschal auf verifizierte Benutzer beschränkt.') ?></p>
                     <?php } elseif ($step === 'migrate') { ?>
                         <p><?= $h('Migrationen auf diesem Ziel ausführen, ohne die Datenbank zurückzusetzen.') ?></p><p><strong><?= $escape($environment['DB_CONNECTION'] ?? 'sqlite') ?></strong> · <code><?= $escape($environment['DB_DATABASE'] ?? 'database/database.sqlite') ?></code></p>
                     <?php } elseif ($step === 'packages') { ?><p><?= $h('Pakete registrieren, Filament-Assets veröffentlichen und Permission-Cache leeren. Zuerst Migrationen ausführen.') ?></p>
@@ -113,7 +119,8 @@ $field = function (string $name, string $label, string $type = 'text') use ($esc
                 </form><?php } ?>
                 <?php if ($step === 'finish') { ?>
                     <h3><?= $h('Adressübersicht') ?></h3><p><?= $h('Adressen verwenden Host und Port dieses Aufrufs. Verfügbarkeit hängt von Einrichtung und Webserver ab.') ?></p>
-                    <ul><?php foreach (['/api/status' => 'API-Status', '/sanctum/csrf-cookie' => 'CSRF-Cookie', '/filament/login' => 'Filament', '/artisan/login' => 'Artisan-Anmeldung', '/artisan' => 'Artisan Runner'] as $path => $label) { ?><li><?= $h($label) ?>: <a href="<?= $escape($base.$path) ?>"><?= $escape($base.$path) ?></a></li><?php } ?></ul>
+                    <ul><?php foreach (['/api/status' => 'API-Status', '/sanctum/csrf-cookie' => 'CSRF-Cookie', '/api/email/verify' => 'E-Mail-Verifizierungsstatus', '/filament/login' => 'Filament', '/artisan/login' => 'Artisan-Anmeldung', '/artisan' => 'Artisan Runner'] as $path => $label) { ?><li><?= $h($label) ?>: <a href="<?= $escape($base.$path) ?>"><?= $escape($base.$path) ?></a></li><?php } ?></ul>
+                    <p><?= $h('Bestätigungslink anfordern') ?>: <code>POST /api/email/verification-notification</code>.</p>
                     <p>API: <code>POST /api/login</code>, <code>GET /api/user</code>, <code>POST /api/logout</code>.</p>
                     <?php if (($environment['APP_ENV'] ?? 'local') === 'local') { ?><p>Telescope: <a href="<?= $escape($base.'/telescope') ?>">/telescope</a> · Brain: <a href="<?= $escape($base.'/_laravel-brain') ?>">/_laravel-brain</a> (<?= $h('Entwicklungspakete erforderlich') ?>).</p><?php } ?>
                     <p><?= $h('Frontend-Origin') ?>: <code><?= $escape($environment['CORS_ALLOWED_ORIGINS'] ?? $t('Nicht konfiguriert')) ?></code>.</p>

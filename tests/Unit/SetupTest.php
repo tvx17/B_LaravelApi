@@ -27,7 +27,7 @@ class SetupTest extends TestCase
             file_put_contents($fixture.'/artisan', '<?php exit(0);');
             $process = proc_open([PHP_BINARY, 'scripts/Setup.php'], [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes, $fixture);
             $this->assertIsResource($process);
-            fwrite($pipes[0], implode("\n", ['n', 'j', 'n', 'j', 'j', 'sqlite', 'j', $fixture.'/database/database.sqlite', 'j', 'j', 'http://localhost:8000', 'http://localhost:9200', 'n', 'n', 'n', 'n', 'n', 'n'])."\n");
+            fwrite($pipes[0], implode("\n", ['n', 'j', 'n', 'j', 'j', 'sqlite', 'j', $fixture.'/database/database.sqlite', 'j', 'j', 'http://localhost:8000', 'http://localhost:9200', 'n', 'n', 'n', 'n', 'n', 'n', 'n'])."\n");
             fclose($pipes[0]);
             $output = stream_get_contents($pipes[1]);
             $errors = stream_get_contents($pipes[2]);

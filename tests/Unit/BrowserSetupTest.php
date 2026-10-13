@@ -114,6 +114,11 @@ class BrowserSetupTest extends TestCase
             $environment = Dotenv::parse(file_get_contents($root.'/.env'));
             $this->assertSame('http://localhost:9200', $environment['CORS_ALLOWED_ORIGINS']);
             $this->assertSame('localhost:9200', $environment['SANCTUM_STATEFUL_DOMAINS']);
+            $beforeReview = file_get_contents($root.'/.env');
+            $html = $request(['csrf' => $token, 'operation' => 'run', 'step' => 'verification']);
+            $this->assertStringContainsString('E-Mail-Verifizierung ist vorbereitet', $html);
+            $this->assertStringContainsString('keine Testmail versandt', $html);
+            $this->assertSame($beforeReview, file_get_contents($root.'/.env'));
             // Exercise actual streaming, including a deliberately quiet long-running child.
             file_put_contents($root.'/artisan', '<?php echo "private-stream-value"; usleep(2200000); exit(0);');
             $started = microtime(true);

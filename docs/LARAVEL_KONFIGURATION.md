@@ -1,6 +1,6 @@
 # Laravel-Konfigurationsreferenz
 
-Stand: 2026-10-11. Automatisch aus der lokalen Laravel-Konfiguration erzeugt.
+Stand: 2026-10-13. Automatisch aus der lokalen Laravel-Konfiguration erzeugt.
 
 Diese Referenz umfasst alle aktuell geladenen Konfigurationsgruppen einschließlich Paketdefaults. Werte stammen aus dem CLI-Bootstrap; Middleware kann sie pro Request ändern. Keine vollständige `.env` wird kopiert. Zugangsdaten, Schlüssel und URLs werden vorsorglich maskiert; maskierte Werte ausschließlich lokal prüfen. Pfade sind Momentaufnahmen dieses Rechners. Objektwerte werden typisiert dargestellt.
 
@@ -184,7 +184,10 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
             "throttle": 60
         }
     },
-    "password_timeout": 10800
+    "password_timeout": 10800,
+    "verification": {
+        "expire": 60
+    }
 }
 ```
 

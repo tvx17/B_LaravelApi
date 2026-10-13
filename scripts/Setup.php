@@ -169,6 +169,12 @@ try {
         $frontendParts = parse_url($frontend);
         $save(['APP_URL' => $api, 'CORS_ALLOWED_ORIGINS' => $frontend, 'SANCTUM_STATEFUL_DOMAINS' => $frontendParts['host'].(isset($frontendParts['port']) ? ':'.$frontendParts['port'] : ''), 'SESSION_SECURE_COOKIE' => parse_url($api, PHP_URL_SCHEME) === 'https' ? 'true' : 'false']);
     }
+    if (setupConfirm('Hinweise zur nativen E-Mail-Verifizierung und Mailzustellung anzeigen?')) {
+        echo "Native E-Mail-Verifizierung ist aktiv; keine zusätzlichen Pakete oder Migrationen nötig.\n";
+        echo "MAIL_MAILER=log schreibt nur ins Laravel-Log. Für echte Zustellung SMTP/Maildienst in .env konfigurieren.\n";
+        echo "APP_URL auf die öffentliche API-Adresse setzen; AUTH_VERIFICATION_EXPIRE bestimmt Linkdauer (Standard 60 Minuten).\n";
+        echo "Bestätigungslinks benötigen Anmeldung desselben Benutzers. Konten bleiben unverändert; keine Testmail wird versandt.\n";
+    }
     echo 'Migration-Ziel laut .env: '.($environment['DB_CONNECTION'] ?? 'sqlite').' / '.($environment['DB_DATABASE'] ?? 'database/database.sqlite').PHP_EOL;
     if (setupConfirm('Migrationen auf der aktuell konfigurierten Datenbank ausführen (bestehende Daten behalten)?')) {
         setupRun([PHP_BINARY, 'artisan', 'migrate', '--force', '--no-interaction']);
@@ -198,7 +204,7 @@ try {
         echo 'Server separat starten: php artisan serve --host='.parse_url($base, PHP_URL_HOST).' --port='.(parse_url($base, PHP_URL_PORT) ?? 80)."\n";
     }
     echo "Adressübersicht laut Konfiguration; Verfügbarkeit hängt von den bestätigten Schritten ab:\n";
-    foreach (['/api/status', '/sanctum/csrf-cookie', '/api/login (POST)', '/api/user', '/api/logout (POST)', '/filament/login', '/artisan/login', '/artisan', '/telescope (nur local)', '/_laravel-brain (nur local)'] as $path) {
+    foreach (['/api/status', '/sanctum/csrf-cookie', '/api/login (POST)', '/api/user', '/api/logout (POST)', '/api/email/verify (GET, angemeldet)', '/api/email/verification-notification (POST, angemeldet)', '/filament/login', '/artisan/login', '/artisan', '/telescope (nur local)', '/_laravel-brain (nur local)'] as $path) {
         echo $base.$path.PHP_EOL;
     }
     echo 'Frontend: '.($environment['CORS_ALLOWED_ORIGINS'] ?? 'http://localhost:9200')."\nCookies/CSRF mitsenden; Details: README.md. Server/Queue/Backup nicht automatisch gestartet.\n";

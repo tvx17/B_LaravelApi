@@ -1,12 +1,13 @@
 # Laravel: Einstellungen, Erweiterungen und Aufrufe
 
-Stand: 11.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projektstand unter Windows. Konfiguration ist keine Zusage, dass jede optionale Integration schon genutzt wird.
+Stand: 13.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projektstand unter Windows. Konfiguration ist keine Zusage, dass jede optionale Integration schon genutzt wird.
 
 ## Vollständige Referenzen
 
 - [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 29 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
 - [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 180 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
 - [Arbeitsprotokoll und offene Aufgaben](PROJEKTDOKUMENTATION.md).
+- [E-Mail-Verifizierung: Paketprüfung und native Laravel-Integration](docs/EMAIL_VERIFIZIERUNG_PRUEFUNG.md): API eingerichtet; echte Mailzustellung separat konfigurieren.
 - [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).
 
 Die Konfigurationsreferenz ist eine Momentaufnahme aus dem CLI-Bootstrap. Middleware kann Einstellungen pro Anfrage ergänzen. `.env` enthält lokale Werte; `.env.example` dokumentiert Vorgaben für neue Checkouts. Bei einem Konfigurationscache gelten dessen gespeicherte Werte. Maßgeblich bleiben die Quelldateien und die jeweilige Umgebung.
@@ -84,6 +85,9 @@ Alle Pfade beziehen sich auf die API-Basisadresse `http://localhost:8000`.
 | `POST /api/login` | API-Anmeldung | freigegebene Stateful-Origin, CSRF, E-Mail/Passwort |
 | `GET /api/user` | Aktueller Benutzer | `auth:sanctum` |
 | `POST /api/logout` | Session beenden | `auth:sanctum`, CSRF |
+| `GET /api/email/verify` | E-Mail-Verifizierungsstatus | `auth:sanctum` |
+| `POST /api/email/verification-notification` | Bestätigungslink senden/erneut senden | `auth:sanctum`, CSRF, begrenzter Versand |
+| `GET /api/email/verify/{id}/{hash}` | Link aus E-Mail bestätigen | Web-Session, `auth:sanctum`, gültige temporäre Signatur, Throttle |
 | `GET /artisan/login`, `POST /artisan/login` | Runner-Anmeldung | Gast, POST mit CSRF/Throttle |
 | `GET /artisan/account` | Konto-/Rechtehinweise | angemeldet |
 | `GET /artisan` | Runner-Oberfläche | Paket aktiv, erlaubte Umgebung, `run-artisan-runner-ui` |
@@ -165,7 +169,9 @@ Frontend-Ablauf: CSRF-Cookie holen → Login → Benutzer abrufen → Logout. Ax
 
 Fortify registriert wegen `ignoreRoutes()` keine eigenen Routen. Login verwendet `AttemptToAuthenticate` und `PrepareAuthenticatedSession`; eigene Responses erhalten das API-Format. Login begrenzt auf 20 Versuche pro Minute/IP und 5 pro Minute/E-Mail-IP-Kombination. Optionales `remember` ist ein Boolean. Alle Panels und API teilen den Session-Guard: Logout beendet die gemeinsame Browser-Session.
 
-Deaktiviert: Registrierung, Reset, Profil-/Passwortänderung, E-Mail-Verifikation, Zwei-Faktor-Anmeldung, Passkeys. Die transitive Installation von `laravel/passkeys` bedeutet keine aktivierte Passkey-Anmeldung. Später passende Actions/Routen, Responses und gegebenenfalls Migrationen ergänzen.
+Deaktiviert: Registrierung, Reset, Profil-/Passwortänderung, Zwei-Faktor-Anmeldung, Passkeys. Die transitive Installation von `laravel/passkeys` bedeutet keine aktivierte Passkey-Anmeldung. Später passende Actions/Routen, Responses und gegebenenfalls Migrationen ergänzen.
+
+E-Mail-Verifizierung nutzt native Laravel-Notifications und eigene API-Actions. `MustVerifyEmail` ist im User-Modell aktiv; `email_verified_at` bereits vorhanden. Status und Versand stehen in API-Routen; der signierte Link liegt mit gleichem API-Präfix in Web-Routen, damit ein Klick aus einer Mail die Session ohne SPA-Origin starten kann. Anmeldung desselben Kontos erforderlich. Gültigkeit über `AUTH_VERIFICATION_EXPIRE` in `config/auth.php`, Standard 60 Minuten; `APP_URL` für CLI-Links richtig setzen. Versand maximal sechs Aufrufe pro Minute/Konto und 30/IP. `MAIL_MAILER=log` stellt keine E-Mail zu; SMTP/Maildienst separat konfigurieren. Keine zusätzliche Verifizierungspflicht für bestehende Login-/Panel-Routen; keine automatisch bestätigten Admin-Konten. Setup-Assistenten enthalten Hinweise in ihren bisherigen Sprachen, ohne automatische Testmail. Fortify-Routen und dessen Zusatzfeatureliste bleiben deaktiviert.
 
 ## Controller und API-Antworten
 
@@ -183,6 +189,8 @@ Trait: `app/Traits/ApiResponse.php`; Enums: `app/Enums/Api/`. Antwortfelder: `co
 | `00001` | Allgemeiner Erfolg |
 | `05001` / `05002` | Login erfolgreich / Zugangsdaten falsch |
 | `05003` / `05004` | Logout erfolgreich / aktueller Benutzer |
+| `05005` / `05006` | E-Mail-Verifizierungsstatus / Bestätigungslink versandt |
+| `05007` / `05008` | E-Mail bestätigt / bereits bestätigt |
 | `00400`, `00401`, `00403`, `00404`, `00405` | Bad Request, fehlende Anmeldung, verboten, nicht gefunden, falsche Methode |
 | `00419`, `00422`, `00429` | CSRF, Validierung, zu viele Anfragen |
 | `00500`, `00999` | Serverfehler, sonstiger Requestfehler |

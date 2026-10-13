@@ -1,4 +1,52 @@
 {
+  "E-Mail-Verifizierung prüfen": {
+    "en": "Review email verification",
+    "fr": "Vérifier la validation e-mail",
+    "it": "Controlla verifica email",
+    "es": "Revisar verificación de correo"
+  },
+  "E-Mail-Verifizierung ist vorbereitet. Mailzustellung und öffentliche API-Adresse prüfen; keine Testmail versandt.": {
+    "en": "Email verification is ready. Check mail delivery and the public API address; no test email sent.",
+    "fr": "La vérification e-mail est prête. Vérifiez la livraison et l’adresse API publique ; aucun e-mail de test envoyé.",
+    "it": "La verifica email è pronta. Controlla invio email e indirizzo API pubblico; nessuna email di prova inviata.",
+    "es": "La verificación está lista. Revisa la entrega y dirección pública de la API; no se envió un correo de prueba."
+  },
+  "Native E-Mail-Verifizierung ist aktiv. Keine zusätzlichen Pakete oder Migrationen erforderlich. Bestehende Konten bleiben unverändert.": {
+    "en": "Native email verification is active. No extra packages or migrations required. Existing accounts are preserved.",
+    "fr": "La vérification e-mail native est active. Aucun paquet ni migration supplémentaire requis. Les comptes existants sont conservés.",
+    "it": "La verifica email nativa è attiva. Non servono pacchetti o migrazioni aggiuntivi. Gli account esistenti restano invariati.",
+    "es": "La verificación nativa está activa. No requiere paquetes ni migraciones adicionales. Se conservan las cuentas existentes."
+  },
+  "Für echte Bestätigungsmails SMTP oder einen anderen Maildienst in .env konfigurieren. APP_URL muss die öffentliche API-Adresse sein; AUTH_VERIFICATION_EXPIRE bestimmt die Linkdauer in Minuten.": {
+    "en": "For real verification emails, configure SMTP or another mail service in .env. APP_URL must be the public API address; AUTH_VERIFICATION_EXPIRE sets link validity in minutes.",
+    "fr": "Pour envoyer des e-mails réels, configurez SMTP ou un service dans .env. APP_URL doit être l’adresse publique de l’API ; AUTH_VERIFICATION_EXPIRE définit la durée en minutes.",
+    "it": "Per email reali, configura SMTP o un servizio email in .env. APP_URL deve essere l’indirizzo API pubblico; AUTH_VERIFICATION_EXPIRE imposta la durata in minuti.",
+    "es": "Para enviar correos reales, configura SMTP u otro servicio en .env. APP_URL debe ser la dirección pública de la API; AUTH_VERIFICATION_EXPIRE define la duración en minutos."
+  },
+  "MAIL_MAILER=log schreibt Bestätigungsmails nur in das Laravel-Log. Hier wird keine Testmail gesendet und kein Benutzer automatisch verifiziert.": {
+    "en": "MAIL_MAILER=log only writes verification emails to the Laravel log. No test email is sent and no user is automatically verified here.",
+    "fr": "MAIL_MAILER=log écrit les e-mails uniquement dans le journal Laravel. Aucun e-mail de test ni validation automatique ici.",
+    "it": "MAIL_MAILER=log scrive le email solo nel log Laravel. Qui non vengono inviate email di prova né verificati utenti automaticamente.",
+    "es": "MAIL_MAILER=log solo escribe los correos en el registro Laravel. Aquí no se envía ningún correo de prueba ni se verifica a usuarios automáticamente."
+  },
+  "Der Bestätigungslink benötigt eine Anmeldung desselben Benutzers. API-Login sowie Filament-/Runner-Zugriff werden nicht pauschal auf verifizierte Benutzer beschränkt.": {
+    "en": "The verification link requires sign-in by the same user. API login and Filament/Runner access are not restricted to verified users by default.",
+    "fr": "Le lien exige la connexion du même utilisateur. L’API, Filament et Runner ne sont pas limités par défaut aux comptes vérifiés.",
+    "it": "Il link richiede l’accesso dello stesso utente. API, Filament e Runner non sono limitati per impostazione predefinita agli utenti verificati.",
+    "es": "El enlace requiere iniciar sesión con el mismo usuario. El acceso API, Filament y Runner no se limita por defecto a usuarios verificados."
+  },
+  "E-Mail-Verifizierungsstatus": {
+    "en": "Email verification status",
+    "fr": "État de vérification e-mail",
+    "it": "Stato verifica email",
+    "es": "Estado de verificación de correo"
+  },
+  "Bestätigungslink anfordern": {
+    "en": "Request verification link",
+    "fr": "Demander un lien de vérification",
+    "it": "Richiedi link di verifica",
+    "es": "Solicitar enlace de verificación"
+  },
   "Sprache": {
     "en": "Language",
     "fr": "Langue",

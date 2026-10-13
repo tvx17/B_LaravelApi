@@ -17,6 +17,7 @@ Jeder Schritt fragt nach Zustimmung; Enter lehnt ab. Abhängigkeiten, `.env` und
 2. Eine fehlende `.env` entsteht aus `.env.example`: sichere Projektstandards, keine übernommenen lokalen Geheimnisse. Ein vorhandener Anwendungsschlüssel bleibt erhalten.
 3. Datenbank auswählen: SQLite, MariaDB oder MySQL; danach vorhandene oder neue Datenbank. SQLite-Dateien werden nicht überschrieben; ihr Elternverzeichnis muss existieren. Neue Serverdatenbanken benötigen `CREATE DATABASE`-Rechte und einen noch freien Namen. Nach Verbindungstest wird die Speicherung separat bestätigt. Eine zuvor bestätigte neue Datenbank bleibt bei Ablehnung dieser Speicherung bestehen.
 4. API-URL und Frontend-Origin konfigurieren, standardmäßig `http://localhost:8000` und `http://localhost:9200`. Für diesen Session-Ablauf denselben Host und dasselbe Schema verwenden. CORS erlaubt Cookies; das Frontend muss Credentials und CSRF mitsenden. Details stehen in der README.
+   Danach lassen sich Hinweise zur nativen E-Mail-Verifizierung anzeigen: Maildienst konfigurieren, öffentliche APP_URL prüfen und AUTH_VERIFICATION_EXPIRE festlegen (Standard 60 Minuten). Die Hinweisabfrage sendet keine Mail und verändert keine Benutzer oder Mailzugänge.
 5. Migrationen für das angezeigte Ziel, Paketregistrierung, Filament-Assets und Permission-Cache bestätigen. Migrationen verwenden kein `fresh`/`reset`; eigene spätere Migrationen trotzdem vor Ausführung prüfen.
 6. Optional einen Administrator anlegen oder einem bestehenden Konto beide Rechte vergeben: `access-admin-panel` und `run-artisan-runner-ui`. Bestehender Name und Passwort bleiben erhalten. Neue Passwörter benötigen mindestens zwölf Zeichen und eine verdeckte Bestätigung. Separat wiederholbar: `php artisan setup:admin`.
 7. Runner-Aktivierung, öffentlichen Storage-Link und lokalen Brain-Scan bestätigen.
@@ -40,6 +41,8 @@ Der grafische Assistent liegt unter `/setup.php`, lokal beispielsweise `http://l
 5. In der Adressübersicht „Abschließen und sperren“ bestätigen. Dadurch entsteht `.setup-complete`, und `.setup-access` wird entfernt. Die Anwendung selbst läuft weiter. Auch eine anschließend neu angelegte Zugangsdatei hebt die Abschlusssperre nicht auf.
 
 ### Servervoraussetzungen und Grenzen
+
+Der Browser-Schritt „E-Mail-Verifizierung prüfen“ zeigt die vorhandenen Mailer-/URL-/Linkdauer-Werte und Hinweise in allen fünf Sprachen. API-Endpunkte sind bereits eingerichtet; zusätzliche Pakete oder Verifizierungsmigrationen sind nicht nötig. SMTP-Zugangsdaten bleiben außerhalb des Assistenten in der lokalen `.env` zu konfigurieren. Mit `MAIL_MAILER=log` werden Nachrichten nur protokolliert. Neue und bestehende Setup-Administratoren werden nicht automatisch verifiziert; Filament-/Runner-Zugang bleibt über die bisherigen Rechte geregelt. Die Abschlussübersicht enthält den Status-Endpunkt und den Versandpfad.
 
 Ein Browser kann keinen PHP-Webserver starten. Lokal muss dieser bereits laufen, etwa über eine vorhandene Entwicklungsumgebung; beim Hosting übernimmt dies der Anbieter. Ein bloßes Öffnen einer PHP-Datei per Doppelklick genügt nicht.
 

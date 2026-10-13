@@ -25,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('email-verification', fn (Request $request): array => [
+            Limit::perMinute(6)->by('verification-user:'.$request->user()->getAuthIdentifier()),
+            Limit::perMinute(30)->by('verification-ip:'.$request->ip()),
+        ]);
         RateLimiter::for('login', function (Request $request): array {
             $email = $request->input('email');
             $email = is_string($email) ? strtolower(trim($email)) : '';

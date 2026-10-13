@@ -209,6 +209,9 @@ Automatische Fortify-Routen sind mit `Fortify::ignoreRoutes()` deaktiviert, dami
 | `POST /api/login` | Mit `email` und `password` anmelden | `05001` |
 | `GET /api/user` | Angemeldeten Benutzer abrufen | `05004` |
 | `POST /api/logout` | Session beenden | `05003` |
+| `GET /api/email/verify` | Verifizierungsstatus des angemeldeten Benutzers | `05005` |
+| `POST /api/email/verification-notification` | Bestätigungslink senden/erneut senden | `05006`, bereits bestätigt: `05008` |
+| `GET /api/email/verify/{id}/{hash}?expires=...&signature=...` | Signierten Link bestätigen | `05007`, bereits bestätigt: `05008` |
 
 Beispiel im Frontend mit Axios:
 
@@ -233,6 +236,32 @@ Axios ist ein Beispiel für das separate Frontend, keine hier installierte Abhä
 Falsche Zugangsdaten liefern `05002`/HTTP 401, Validierungsfehler `00422`/422, fehlende Anmeldung `00401`/401 und fehlender/ungültiger CSRF-Token `00419`/419. Login ist gedrosselt. Nach 419 den CSRF-Ablauf erneut starten, nach 401 erneut anmelden.
 
 Ein vorhandenes Benutzerkonto wird benötigt; keine öffentliche Registrierung und keine automatisch vergebenen Admin-/Runner-Rechte. Sanctum ist hier ausschließlich für Sessions eingerichtet, ohne Token-Erzeugung oder Token-Migration. Browser-Panels und API teilen den `web`-Guard: API-Logout beendet daher auch die gemeinsame Browser-Session. `/filament` und `/artisan` bleiben getrennte Routenbereiche.
+
+## E-Mail-Verifizierung
+
+Native Laravel-Verifizierung ist eingerichtet. `User` implementiert `MustVerifyEmail`; der vorhandene Zeitstempel `email_verified_at` speichert den Zustand. Zusätzliche Pakete oder Migrationen werden nicht benötigt. Die drei Controller-Methoden delegieren an Actions unter `app/Actions/Users/`.
+
+Nach Session-Anmeldung `POST /api/email/verification-notification` mit Cookies/CSRF aufrufen. Ein erfolgreicher Aufruf erzeugt die native Notification; er garantiert keine Zustellung in das Postfach. Mit `MAIL_MAILER=log` steht die Mail nur im Laravel-Log. Für echte Zustellung einen Maildienst in `.env` konfigurieren, beispielsweise:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_SCHEME=smtp
+MAIL_HOST=smtp.example.org
+MAIL_PORT=587
+MAIL_USERNAME=your-mail-user
+MAIL_PASSWORD="your-mail-password"
+MAIL_FROM_ADDRESS="noreply@example.org"
+MAIL_FROM_NAME="Your Application"
+AUTH_VERIFICATION_EXPIRE=60
+```
+
+Werte an den Anbieter anpassen; für implizites TLS gegebenenfalls `MAIL_SCHEME=smtps` und den dazugehörigen Port verwenden. Danach `php artisan config:clear`. `APP_URL` muss die tatsächliche öffentliche API-Adresse sein, insbesondere für Links aus CLI-/Hintergrundprozessen. `.env` und Zugangsdaten nicht einchecken.
+
+Den vollständigen Link aus der Mail unverändert öffnen: er enthält Signatur und Ablaufzeit, standardmäßig 60 Minuten. Es muss derselbe Benutzer angemeldet sein. Bei HTTP 401 zuerst anmelden und anschließend den ursprünglichen Link erneut öffnen; abgelaufene oder manipulierte Links liefern `00403`/HTTP 403. Der Link-Endpunkt nutzt Web-Session-Middleware, damit auch ein Browseraufruf aus einer Mail ohne SPA-Origin funktioniert, und antwortet weiterhin als JSON.
+
+Versand ist auf sechs Anfragen pro Minute/Konto und 30 pro Minute/IP begrenzt; darüber `00429`/429 mit `Retry-After`. Bestehende Benutzer werden nicht automatisch bestätigt. Login, Filament und Runner erhalten keine zusätzliche Verifizierungspflicht. Später fachlich passende Routen mit `verified` schützen; bei künftigen E-Mail-Änderungen den Bestätigungsstatus zurücksetzen. Öffentliche Registrierung bleibt deaktiviert; ein künftig ausgelöstes `Registered`-Event versendet die native Notification.
+
+Browser- und CLI-Assistent zeigen einen eigenen Hinweisschritt zu Mailzustellung, Linkdauer und API-Adresse. Dabei werden weder Testmails versandt noch Mailzugänge oder Benutzerzustände geändert. Paketvergleich: [Prüfung](docs/EMAIL_VERIFIZIERUNG_PRUEFUNG.md).
 
 ## API-Antwortformat
 
