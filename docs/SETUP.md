@@ -26,6 +26,8 @@ Jeder Schritt fragt nach Zustimmung; Enter lehnt ab. Abhängigkeiten, `.env` und
 
 Kitloong Laravel Migrations Generator wird als Entwicklungsabhängigkeit über den Composer-Schritt installiert und automatisch registriert. Keine Paketmigration, Benutzeranlage oder zusätzliche Assistenten-Abfrage nötig. Der Assistent exportiert kein Schema. Spätere Exporte bewusst per CLI mit separatem `--path` und `--skip-log` starten; Beispiele in der README. Bei Installation mit `--no-dev` fehlt dieses Werkzeug.
 
+Laravel IDE Helper wird ebenfalls als Entwicklungsabhängigkeit installiert und automatisch registriert. `config/ide-helper.php` ist im Repository enthalten; keine Paketmigration, Benutzeranlage oder weitere Pflichtabfrage nötig. Nach dem Setup bei Bedarf lokal `php artisan ide-helper:generate --no-interaction`, `php artisan ide-helper:models --nowrite --no-interaction` und für PhpStorm `php -d memory_limit=512M artisan ide-helper:meta --no-interaction` ausführen. Die Modellgenerierung benötigt eine erreichbare, migrierte Datenbank. Generierte Dateien bleiben lokal/Git-ignoriert; Modelle unverändert. Keine automatische Generierung beim Setup oder nach Migrationen; bei `--no-dev` fehlt das Werkzeug.
+
 ## Nach der Einrichtung
 
 Der Assistent zeigt API-, Filament-, Artisan-, Telescope- und Brain-Adressen sowie einen passenden Serverbefehl. Ausgelassene Schritte können deren Nutzbarkeit einschränken. `storage:link` kann unter Windows entsprechende Symlink-Rechte benötigen.

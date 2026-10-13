@@ -4,8 +4,8 @@ Stand: 13.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projekt
 
 ## Vollständige Referenzen
 
-- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 31 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
-- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 183 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
+- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 32 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
+- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 185 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
 - [Arbeitsprotokoll und offene Aufgaben](PROJEKTDOKUMENTATION.md).
 - [E-Mail-Verifizierung: Paketprüfung und native Laravel-Integration](docs/EMAIL_VERIFIZIERUNG_PRUEFUNG.md): API eingerichtet; echte Mailzustellung separat konfigurieren.
 - [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).
@@ -134,7 +134,7 @@ Runner-Konfiguration: `allowed=[]` erlaubt grundsätzlich alle Befehle außerhal
 tinker, serve, down, up, db:wipe, migrate:fresh, migrate:reset,
 migrate:refresh, migrate:rollback, migrate:generate, key:generate, env:*, queue:work,
 queue:listen, schedule:work, schedule:run, vendor:publish,
-package:discover, runner:create-user, admin:grant-access, make:filament-user, setup:*
+package:discover, ide-helper:*, runner:create-user, admin:grant-access, make:filament-user, setup:*
 ```
 
 Permission verwendet Guard `web`, Standardcache mit 24 Stunden Ablauf; Teams, Wildcard-Berechtigungen und Passport-Client-Credentials sind aus. Middleware-Aliase: `role`, `permission`, `role_or_permission`; einzelne Rechte über `can`. Methoden wie `givePermissionTo`, `assignRole`, `revokePermissionTo` halten den Paketcache aktuell.
@@ -205,6 +205,7 @@ Kitloong Laravel Migrations Generator 7.4.0 (`kitloong/laravel-migrations-genera
 
 | Paket / Version | Aufruf und Status |
 | --- | --- |
+| Laravel IDE Helper 3.7.0 | `php artisan ide-helper:generate`, `php artisan ide-helper:models --nowrite`, `php -d memory_limit=512M artisan ide-helper:meta`; `config/ide-helper.php`; lokal generierte/Git-ignorierte Helper-Dateien, keine URL; Setup installiert/registriert, Generierung danach bei Bedarf; mit `--no-dev` nicht verfügbar |
 | Telescope 5.25.0 | `/telescope`; nur local; `TELESCOPE_ENABLED`; Speicherung in SQLite; `php artisan telescope:prune --hours=48` löscht ältere Aufzeichnungen |
 | Laravel Brain 2.7.1 | `php artisan brain:scan --no-interaction`, dann `/_laravel-brain`; nur local; Graphen in `storage/app/laravel-brain/`, Git ignoriert |
 | Laravel Pail 1.2.7 | `php artisan pail`; installiert, benötigt `pcntl` und deshalb nativ hier unter Windows nicht nutzbar. Alternative: `Get-Content storage/logs/laravel.log -Wait -Tail 50` |
@@ -219,7 +220,7 @@ Telescope maskiert Passwörter, Authorization-, Cookie- und CSRF-Header. Automat
 
 Weitere wichtige transitive Pakete: Livewire 4.4.7 (Filament), Filament-Komponenten, Laravel Passkeys 0.2.1 (Fortify), Laravel Stress 1.0.3 (Brain), Laravel Sentinel (Framework), Guzzle/OAuth/JWT-Bibliotheken (Socialite), Spatie Image/Optimizer (Media Library). Sie werden durch PHP-Autoload beziehungsweise ihr Hauptpaket aufgerufen; es gibt nicht für jede Bibliothek eine eigene URL. Alle Versionen im Paketverzeichnis.
 
-Tests nutzen SQLite im Arbeitsspeicher, Array-Sessions/-Cache, synchrone Queue; Telescope/Runner standardmäßig aus. Zuletzt bestanden: 53 Tests mit 253 Assertions. Für reine Dokumentation wurden diese nicht erneut ausgeführt.
+Tests nutzen SQLite im Arbeitsspeicher, Array-Sessions/-Cache, synchrone Queue; Telescope/Runner standardmäßig aus. Nach Installation von IDE Helper bestanden: 86 Tests mit 930 Assertions.
 
 ## Frontend-Vorlage und Composer-Automatisierung
 

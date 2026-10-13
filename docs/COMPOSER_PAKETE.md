@@ -6,6 +6,8 @@ Stand: 13.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed
 | --- | --- | --- |
 | anourvalar/eloquent-serialize | 1.3.12 | Transitiv, Laufzeit |
 | bacon/bacon-qr-code | v3.1.1 | Transitiv, Laufzeit |
+| barryvdh/laravel-ide-helper | v3.7.0 | Direkt, Entwicklung |
+| barryvdh/reflection-docblock | v2.4.1 | Transitiv, Entwicklung |
 | blade-ui-kit/blade-heroicons | 2.7.0 | Transitiv, Laufzeit |
 | blade-ui-kit/blade-icons | 1.10.1 | Transitiv, Laufzeit |
 | brick/math | 1.0.0 | Transitiv, Laufzeit |

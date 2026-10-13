@@ -305,6 +305,24 @@ Das Beispiel schreibt in einen separaten Ordner und verändert durch `--skip-log
 
 Der CLI- und Browser-Installationsassistent installiert und registriert das Paket über die bestehenden Composer-Schritte. Kein zusätzlicher Benutzer, keine Paketmigration und kein automatischer Schemaexport nötig. Bei `composer install --no-dev` steht der Befehl nicht zur Verfügung. Paketdefaults werden automatisch als `migrations-generator` geladen; keine eigene Konfigurationsdatei nötig. `migrate:generate` ist im Artisan Runner gesperrt, da es Quellcodedateien und ohne `--skip-log` auch den Migrationsstand verändern kann. [Paketdokumentation](https://github.com/kitloong/laravel-migrations-generator).
 
+## IDE-Unterstützung für Laravel
+
+Laravel IDE Helper 3.7.0 ist als Entwicklungsabhängigkeit installiert. Die generierten PHPDoc-Dateien verbessern die Vervollständigung für Facades, Eloquent-Attribute, Beziehungen und Builder; `ide-helper:meta` ergänzt PhpStorm-Containerinformationen. Keine eigene URL oder API-Funktion. Konfiguration: `config/ide-helper.php`.
+
+Nach Einrichtung der lokalen Datenbank und Migrationen ausführen:
+
+```powershell
+php artisan ide-helper:generate --no-interaction
+php artisan ide-helper:models --nowrite --no-interaction
+php -d memory_limit=512M artisan ide-helper:meta --no-interaction
+```
+
+Die PhpStorm-Generierung benötigt hier mehr als die lokalen 128 MB PHP-Speicher. `-d memory_limit=512M` erhöht das Limit nur für diesen Aufruf.
+
+Die Dateien `_ide_helper.php`, `_ide_helper_models.php` und `.phpstorm.meta.php` werden lokal erzeugt und von Git ignoriert. Die IDE muss sie indexieren. `--nowrite` lässt die Modelldateien unverändert; `--write`, `--write-mixin` und `--reset` nur bei bewusst gewünschter Änderung verwenden. Bei doppelten Klassendeklarationen in der IDE die Modell-Helper-Konfiguration bzw. den Index prüfen. Nach Schema-, Modell- oder Paketänderungen erneut generieren; Modellgenerierung braucht eine erreichbare, migrierte Datenbank. Drittanbieter-Beziehungen und Makros können zusätzliche Konfiguration benötigen.
+
+CLI- und Browser-Setup installieren und registrieren IDE Helper bereits über ihre bestehenden Composer-/Paketschritte. Keine zusätzliche Paketmigration oder Benutzeranlage nötig. IDE-Dateien werden nach dem Setup bei Bedarf lokal mit den obigen Befehlen erzeugt; keine ungefragte Generierung im Assistenten oder bei Migrationen (`post_migrate=[]`). Mit `composer install --no-dev` ist das Werkzeug nicht verfügbar. Die Befehle sind im Artisan Runner gesperrt, da sie Dateien schreiben und je nach Optionen Modelle ändern können. [Paketdokumentation](https://github.com/barryvdh/laravel-ide-helper).
+
 ## API-Antwortformat
 
 Eigene API-Actions verwenden den Trait `App\Traits\ApiResponse`. Jede Antwort enthält `code` (fünfstelliger String), `status` (Boolean), `data` und `responseStatus` (zusätzlich zum tatsächlichen HTTP-Status).
