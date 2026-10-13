@@ -4,8 +4,8 @@ Stand: 13.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projekt
 
 ## Vollständige Referenzen
 
-- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 29 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
-- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 180 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
+- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 30 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
+- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 182 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
 - [Arbeitsprotokoll und offene Aufgaben](PROJEKTDOKUMENTATION.md).
 - [E-Mail-Verifizierung: Paketprüfung und native Laravel-Integration](docs/EMAIL_VERIFIZIERUNG_PRUEFUNG.md): API eingerichtet; echte Mailzustellung separat konfigurieren.
 - [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).
@@ -55,6 +55,7 @@ php artisan migrate:status  # Migrationen kontrollieren
 | `config/queue.php` | Standardverbindung `database`; Jobs/Fehlerjobs in der Datenbank, Worker nicht automatisch gestartet |
 | `config/filesystems.php` | Standarddisk `local` in `storage/app/private`; `public` in `storage/app/public`; S3-Konfiguration vorbereitet, kein Bucket eingerichtet |
 | `config/mail.php` | Mailer `log`; keine echte Mailzustellung eingerichtet |
+| `config/sluggable.php` | Eloquent Sluggable: `unique=true`, `onUpdate=false`, Trenner `-`, erster Suffix `2`; Quelle und maximale Länge pro Modell festlegen |
 | `config/logging.php` | Stack mit Single-Dateilog, Level `debug`; typischer Logpfad `storage/logs/laravel.log` |
 | `config/services.php` | Platzhalter für Postmark, Resend, AWS SES und Slack; keine Socialite-Anbieter konfiguriert |
 | Framework-Broadcasting | Verbindung `log`, keine fachlichen Channels konfiguriert |
@@ -107,6 +108,7 @@ Filament-Downloads liegen ebenfalls unter `/filament`. Paketassets und Livewire 
 | `codesquirrel/artisan-runner-ui` 1.0.1 | `/artisan`; `config/artisan-runner-ui.php`. Lokal aktiv, in `.env.example` aus. Erlaubte Umgebungen: local/qa/staging/uat |
 | `filament/filament` 5.10.0 | `/filament`; `app/Providers/Filament/AdminPanelProvider.php`. Panel-ID `admin`, Guard `web`, Dashboard; keine fachlichen Resources |
 | `laravel/fortify` 1.41.0 | Kein eigenes Dashboard. API-Login über Fortify-Pipeline; `config/fortify.php` und eigener Provider/Responses |
+| `cviebrock/eloquent-sluggable` 13.0.1 | Automatische Slugs pro Eloquent-Modell über `Sluggable` und `sluggable()`; `config/sluggable.php`, keine eigene URL |
 | `laravel/sanctum` 4.3.3 | CSRF-Cookie und Session-Guard der API; `config/sanctum.php`, `statefulApi()` aktiv; keine Token-Erzeugung |
 | `laravel/socialite` 5.31.0 | Verwendung später über `Socialite::driver(...)`; noch kein Anbieter, keine OAuth-Routen |
 | `laravel/tinker` 3.0.2 | `php artisan tinker`; interaktive PHP-Konsole; in Runner gesperrt |

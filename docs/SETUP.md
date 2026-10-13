@@ -19,6 +19,8 @@ Jeder Schritt fragt nach Zustimmung; Enter lehnt ab. Abhängigkeiten, `.env` und
 4. API-URL und Frontend-Origin konfigurieren, standardmäßig `http://localhost:8000` und `http://localhost:9200`. Für diesen Session-Ablauf denselben Host und dasselbe Schema verwenden. CORS erlaubt Cookies; das Frontend muss Credentials und CSRF mitsenden. Details stehen in der README.
    Danach lassen sich Hinweise zur nativen E-Mail-Verifizierung anzeigen: Maildienst konfigurieren, öffentliche APP_URL prüfen und AUTH_VERIFICATION_EXPIRE festlegen (Standard 60 Minuten). Die Hinweisabfrage sendet keine Mail und verändert keine Benutzer oder Mailzugänge.
 5. Migrationen für das angezeigte Ziel, Paketregistrierung, Filament-Assets und Permission-Cache bestätigen. Migrationen verwenden kein `fresh`/`reset`; eigene spätere Migrationen trotzdem vor Ausführung prüfen.
+
+   Eloquent Sluggable wird ebenfalls über Composer installiert und automatisch registriert. `config/sluggable.php` ist bereits im Repository enthalten; kein zusätzlicher Setup-Schritt nötig. Für spätere Ressourcen jeweils Sluggable-Trait, Quellattribut und eigene Slug-Spalte/Migration ergänzen. Noch keine Slug-Spalte für vorhandene Anwendungsmodelle angelegt.
 6. Optional einen Administrator anlegen oder einem bestehenden Konto beide Rechte vergeben: `access-admin-panel` und `run-artisan-runner-ui`. Bestehender Name und Passwort bleiben erhalten. Neue Passwörter benötigen mindestens zwölf Zeichen und eine verdeckte Bestätigung. Separat wiederholbar: `php artisan setup:admin`.
 7. Runner-Aktivierung, öffentlichen Storage-Link und lokalen Brain-Scan bestätigen.
 

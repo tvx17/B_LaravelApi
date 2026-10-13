@@ -1429,6 +1429,25 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
 }
 ```
 
+## sluggable
+
+```json
+{
+    "source": null,
+    "maxLength": null,
+    "maxLengthKeepWords": true,
+    "method": null,
+    "separator": "-",
+    "unique": true,
+    "uniqueSuffix": null,
+    "firstUniqueSuffix": 2,
+    "includeTrashed": false,
+    "reserved": null,
+    "onUpdate": false,
+    "slugEngineOptions": []
+}
+```
+
 ## telescope
 
 ```json

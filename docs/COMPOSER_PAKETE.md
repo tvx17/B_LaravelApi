@@ -1,6 +1,6 @@
 # Installierte Composer-Pakete
 
-Stand: 08.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed.json`. Direkte Pakete stehen in `composer.json`; transitive Pakete werden von ihnen benötigt und besitzen häufig keine eigene Oberfläche. Aufrufe und Integrationsstatus: [Laravel-Handbuch](../LARAVEL_HANDBUCH.md).
+Stand: 13.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed.json`. Direkte Pakete stehen in `composer.json`; transitive Pakete werden von ihnen benötigt und besitzen häufig keine eigene Oberfläche. Aufrufe und Integrationsstatus: [Laravel-Handbuch](../LARAVEL_HANDBUCH.md).
 
 | Paket | Installierte Version | Einordnung |
 | --- | --- | --- |
@@ -12,10 +12,12 @@ Stand: 08.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed
 | carbonphp/carbon-doctrine-types | 3.2.1 | Transitiv, Laufzeit |
 | chillerlan/php-qrcode | 5.0.5 | Transitiv, Laufzeit |
 | chillerlan/php-settings-container | 3.3.0 | Transitiv, Laufzeit |
+| cocur/slugify | v4.7.1 | Transitiv, Laufzeit |
 | codesquirrel/artisan-runner-ui | v1.0.1 | Direkt, Laufzeit |
 | composer/class-map-generator | 1.8.0 | Transitiv, Laufzeit |
 | composer/pcre | 3.4.0 | Transitiv, Laufzeit |
 | composer/semver | 3.5.1 | Transitiv, Laufzeit |
+| cviebrock/eloquent-sluggable | 13.0.1 | Direkt, Laufzeit |
 | danharrin/date-format-converter | v0.3.1 | Transitiv, Laufzeit |
 | danharrin/livewire-rate-limiting | v2.3.0 | Transitiv, Laufzeit |
 | dasprid/enum | 1.0.7 | Transitiv, Laufzeit |

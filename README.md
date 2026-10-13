@@ -263,6 +263,33 @@ Versand ist auf sechs Anfragen pro Minute/Konto und 30 pro Minute/IP begrenzt; d
 
 Browser- und CLI-Assistent zeigen einen eigenen Hinweisschritt zu Mailzustellung, Linkdauer und API-Adresse. Dabei werden weder Testmails versandt noch Mailzugänge oder Benutzerzustände geändert. Paketvergleich: [Prüfung](docs/EMAIL_VERIFIZIERUNG_PRUEFUNG.md).
 
+## Automatische Slugs für Eloquent-Modelle
+
+`cviebrock/eloquent-sluggable` ist für Laravel 13 installiert. Es erzeugt URL-taugliche Kennungen aus Modellattributen und ergänzt bei Kollisionen einen Suffix, beispielsweise `laravel-api` und `laravel-api-2`. Konfiguration: `config/sluggable.php`. Es gibt keine eigene Oberfläche oder zusätzliche Paketroute.
+
+Für ein künftiges Modell mit einer `title`- und `slug`-Spalte:
+
+```php
+use Cviebrock\EloquentSluggable\Sluggable;
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model
+{
+    use Sluggable;
+
+    public function sluggable(): array
+    {
+        return ['slug' => ['source' => 'title', 'maxLength' => 255]];
+    }
+}
+```
+
+Beim Speichern des Modells wird der Slug erzeugt. Die Datenbankspalte muss vorher per eigener Ressourcenmigration angelegt werden, etwa `$table->string('slug', 255)->unique()`. Bei bestehenden Datensätzen zunächst eine Backfill-Strategie festlegen. Der Unique-Index sichert auch parallele Schreibzugriffe ab; mögliche Constraint-Verletzungen müssen die jeweiligen Actions behandeln.
+
+Standardmäßig bleiben vorhandene Slugs bei Titeländerungen erhalten (`onUpdate=false`); `unique=true` und `firstUniqueSuffix=2`. Quellfeld, maximale Länge und gegebenenfalls reservierte Namen pro Modell bestimmen. Eine Route kann später `{post:slug}` verwenden; der Slug ersetzt keine Autorisierungsprüfung.
+
+Der Installationsassistent installiert und registriert das Paket bereits über seine Composer-/Paketschritte. Keine zusätzliche `.env`-Einstellung oder Paketmigration erforderlich. Noch kein Anwendungsmodell nutzt den Trait. Die benötigten `mbstring`-Funktionen werden hier durch den vorhandenen Symfony-Polyfill bereitgestellt; Windows-Nutzung ist geprüft. [Paketdokumentation](https://github.com/cviebrock/eloquent-sluggable).
+
 ## API-Antwortformat
 
 Eigene API-Actions verwenden den Trait `App\Traits\ApiResponse`. Jede Antwort enthält `code` (fünfstelliger String), `status` (Boolean), `data` und `responseStatus` (zusätzlich zum tatsächlichen HTTP-Status).
