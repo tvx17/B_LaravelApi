@@ -1,6 +1,6 @@
 # Laravel-Konfigurationsreferenz
 
-Stand: 2026-10-13. Automatisch aus der lokalen Laravel-Konfiguration erzeugt.
+Stand: 2026-10-14. Automatisch aus der lokalen Laravel-Konfiguration erzeugt.
 
 Diese Referenz umfasst alle aktuell geladenen Konfigurationsgruppen einschließlich Paketdefaults. Werte stammen aus dem CLI-Bootstrap; Middleware kann sie pro Request ändern. Keine vollständige `.env` wird kopiert. Zugangsdaten, Schlüssel und URLs werden vorsorglich maskiert; maskierte Werte ausschließlich lokal prüfen. Pfade sind Momentaufnahmen dieses Rechners. Objektwerte werden typisiert dargestellt.
 
@@ -54,7 +54,8 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
         "Illuminate\\View\\ViewServiceProvider",
         "App\\Providers\\AppServiceProvider",
         "App\\Providers\\FortifyServiceProvider",
-        "App\\Providers\\Filament\\AdminPanelProvider"
+        "App\\Providers\\Filament\\AdminPanelProvider",
+        "App\\Providers\\ScrambleServiceProvider"
     ],
     "aliases": {
         "App": "Illuminate\\Support\\Facades\\App",
@@ -146,6 +147,7 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
         "vendor:publish",
         "package:discover",
         "ide-helper:*",
+        "scramble:*",
         "runner:create-user",
         "admin:grant-access",
         "make:filament-user",
@@ -1446,6 +1448,67 @@ Aktualisieren: `php scripts/Export-LaravelConfiguration.php`. Übersicht und Nut
         "encrypt_cookies": "Illuminate\\Cookie\\Middleware\\EncryptCookies",
         "validate_csrf_token": "Illuminate\\Foundation\\Http\\Middleware\\ValidateCsrfToken"
     }
+}
+```
+
+## scramble
+
+```json
+{
+    "api_path": "",
+    "api_domain": null,
+    "export_path": "storage/app/private/openapi.json",
+    "cache": {
+        "key": "[REDACTED: Wert lokal prüfen]",
+        "store": "file"
+    },
+    "info": {
+        "version": "0.0.1",
+        "description": "LaravelAPI: Antworten enthalten code (fünfstelliger String), status, data und responseStatus. Cookie-Anmeldung: zunächst GET /sanctum/csrf-cookie, dann POST /api/login mit Cookies und X-XSRF-TOKEN. Das Frontend benötigt Credentials und eine erlaubte Stateful-Origin. Signierte E-Mail-Links benötigen Anmeldung desselben Kontos. Dokumentation ist standardmäßig nur lokal erreichbar."
+    },
+    "ui": {
+        "title": null
+    },
+    "dev_tools": {
+        "enabled": true
+    },
+    "renderer": "elements",
+    "renderers": {
+        "elements": {
+            "view": "scramble::docs",
+            "theme": "light",
+            "hideTryIt": false,
+            "hideSchemas": false,
+            "logo": "",
+            "tryItCredentialsPolicy": "include",
+            "layout": "responsive",
+            "router": "hash"
+        },
+        "scalar": {
+            "view": "scramble::scalar",
+            "cdn": "https://cdn.jsdelivr.net/npm/@scalar/api-reference",
+            "theme": "laravel",
+            "proxyUrl": "https://proxy.scalar.com",
+            "darkMode": false,
+            "showDeveloperTools": "never",
+            "agent": {
+                "disabled": true
+            },
+            "credentials": "[REDACTED: Wert lokal prüfen]"
+        }
+    },
+    "servers": {
+        "API": "/"
+    },
+    "enum_cases_description_strategy": "description",
+    "enum_cases_names_strategy": false,
+    "flatten_deep_query_parameters": true,
+    "middleware": [
+        "web",
+        "Dedoc\\Scramble\\Http\\Middleware\\RestrictedDocsAccess"
+    ],
+    "extensions": [],
+    "security_strategy": null
 }
 ```
 

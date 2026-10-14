@@ -1,6 +1,6 @@
 # Installierte Composer-Pakete
 
-Stand: 13.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed.json`. Direkte Pakete stehen in `composer.json`; transitive Pakete werden von ihnen benötigt und besitzen häufig keine eigene Oberfläche. Aufrufe und Integrationsstatus: [Laravel-Handbuch](../LARAVEL_HANDBUCH.md).
+Stand: 14.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed.json`. Direkte Pakete stehen in `composer.json`; transitive Pakete werden von ihnen benötigt und besitzen häufig keine eigene Oberfläche. Aufrufe und Integrationsstatus: [Laravel-Handbuch](../LARAVEL_HANDBUCH.md).
 
 | Paket | Installierte Version | Einordnung |
 | --- | --- | --- |
@@ -23,6 +23,7 @@ Stand: 13.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed
 | danharrin/date-format-converter | v0.3.1 | Transitiv, Laufzeit |
 | danharrin/livewire-rate-limiting | v2.3.0 | Transitiv, Laufzeit |
 | dasprid/enum | 1.0.7 | Transitiv, Laufzeit |
+| dedoc/scramble | v0.13.47 | Direkt, Laufzeit |
 | dflydev/dot-access-data | v3.0.3 | Transitiv, Laufzeit |
 | doctrine/deprecations | 1.1.6 | Transitiv, Laufzeit |
 | doctrine/inflector | 2.1.0 | Transitiv, Laufzeit |
@@ -81,7 +82,7 @@ Stand: 13.10.2026. Vollständiger lokaler Bestand aus `vendor/composer/installed
 | maennchen/zipstream-php | 3.2.2 | Transitiv, Laufzeit |
 | mockery/mockery | 1.6.15 | Direkt, Entwicklung |
 | monolog/monolog | 3.12.1 | Transitiv, Laufzeit |
-| myclabs/deep-copy | 1.14.0 | Transitiv, Entwicklung |
+| myclabs/deep-copy | 1.14.0 | Transitiv, Laufzeit |
 | nesbot/carbon | 3.14.2 | Transitiv, Laufzeit |
 | nette/php-generator | v4.2.2 | Transitiv, Laufzeit |
 | nette/schema | v1.3.6 | Transitiv, Laufzeit |

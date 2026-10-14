@@ -323,6 +323,27 @@ Die Dateien `_ide_helper.php`, `_ide_helper_models.php` und `.phpstorm.meta.php`
 
 CLI- und Browser-Setup installieren und registrieren IDE Helper bereits über ihre bestehenden Composer-/Paketschritte. Keine zusätzliche Paketmigration oder Benutzeranlage nötig. IDE-Dateien werden nach dem Setup bei Bedarf lokal mit den obigen Befehlen erzeugt; keine ungefragte Generierung im Assistenten oder bei Migrationen (`post_migrate=[]`). Mit `composer install --no-dev` ist das Werkzeug nicht verfügbar. Die Befehle sind im Artisan Runner gesperrt, da sie Dateien schreiben und je nach Optionen Modelle ändern können. [Paketdokumentation](https://github.com/barryvdh/laravel-ide-helper).
 
+## API-Dokumentation mit Scramble
+
+Scramble 0.13.47 dokumentiert die bestehenden API-Endpunkte einschließlich des Status unter `/` und der signierten E-Mail-Verifizierung. Aufruf unter derselben Basisadresse wie die Anwendung:
+
+- `/docs/api`: interaktive Dokumentation.
+- `/docs/api.json`: OpenAPI-Spezifikation als JSON.
+
+Beide Routen sind standardmäßig ausschließlich in `APP_ENV=local` zugänglich; in anderen Umgebungen antworten sie mit 403. Filament und Artisan bleiben unter ihren eigenen Pfaden. Die Dokumentationsoberfläche lädt ihre Bibliothek vom CDN und benötigt dafür Internetzugang.
+
+Konfiguration: `config/scramble.php`, Registrierung: `app/Providers/ScrambleServiceProvider.php`. API-Serveradressen folgen im Browser dem Aufrufhost; CLI-Exporte verwenden die konfigurierte `APP_URL`. Das dokumentierte Antwortschema enthält fünfstellige String-Enum-Codes, `status`, `data` und `responseStatus`. `app/Support/Documentation/ApiOperationTransformer.php` ergänzt Angaben, die Scramble durch Fortify-/Action-Delegation und zentrale Fehlerbehandlung nicht vollständig erkennt. Bei neuen Operationen oder geänderten Codes diese Ergänzung prüfen; andere Routen werden weiterhin automatisch analysiert. Passwörter/remember_token sind keine Antwortfelder.
+
+Cookie-Anmeldung: zunächst `/sanctum/csrf-cookie` aufrufen, danach `/api/login` mit Cookies und dem URL-dekodierten XSRF-TOKEN als `X-XSRF-TOKEN` senden. In der UI müssen Cookies bereits vorhanden sein und bei Schreibzugriffen der CSRF-Header angegeben werden. Signierte Verifizierungslinks mitsamt `expires`/`signature` aus der E-Mail verwenden; kein beliebiger Link kann dort erzeugt werden. Die Dokumentation ersetzt keine Anmeldung oder Berechtigungsprüfung. CLI-/Browser-Setup installiert und registriert das Paket bereits; Abschlussübersichten enthalten die Dokumentationsadressen. Keine zusätzliche Migration oder Benutzeranlage nötig.
+
+```powershell
+php artisan scramble:export
+php artisan scramble:cache
+php artisan scramble:clear
+```
+
+Exportziel: `storage/app/private/openapi.json`, Git-ignoriert und nicht öffentlich abgelegt. Cache nach API-Änderungen leeren oder neu erzeugen. Bei per CLI erzeugtem Dokumentationscache stammen auch die gespeicherten Serveradressen aus `APP_URL`; diese vor dem Cachen auf die tatsächliche Basisadresse setzen. Scramble-Befehle sind im Artisan Runner gesperrt, weil sie Dateien beziehungsweise Cache schreiben können. Keine API-Platform-Installation oder Änderung der API-Laufzeit erforderlich. [Scramble-Dokumentation](https://scramble.dedoc.co/installation).
+
 ## API-Antwortformat
 
 Eigene API-Actions verwenden den Trait `App\Traits\ApiResponse`. Jede Antwort enthält `code` (fünfstelliger String), `status` (Boolean), `data` und `responseStatus` (zusätzlich zum tatsächlichen HTTP-Status).

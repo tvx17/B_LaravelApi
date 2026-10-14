@@ -204,7 +204,7 @@ try {
         echo 'Server separat starten: php artisan serve --host='.parse_url($base, PHP_URL_HOST).' --port='.(parse_url($base, PHP_URL_PORT) ?? 80)."\n";
     }
     echo "Adressübersicht laut Konfiguration; Verfügbarkeit hängt von den bestätigten Schritten ab:\n";
-    foreach (['/api/status', '/sanctum/csrf-cookie', '/api/login (POST)', '/api/user', '/api/logout (POST)', '/api/email/verify (GET, angemeldet)', '/api/email/verification-notification (POST, angemeldet)', '/filament/login', '/artisan/login', '/artisan', '/telescope (nur local)', '/_laravel-brain (nur local)'] as $path) {
+    foreach (['/api/status', '/sanctum/csrf-cookie', '/api/login (POST)', '/api/user', '/api/logout (POST)', '/api/email/verify (GET, angemeldet)', '/api/email/verification-notification (POST, angemeldet)', '/filament/login', '/artisan/login', '/artisan', '/docs/api (nur local)', '/docs/api.json (nur local)', '/telescope (nur local)', '/_laravel-brain (nur local)'] as $path) {
         echo $base.$path.PHP_EOL;
     }
     echo 'Frontend: '.($environment['CORS_ALLOWED_ORIGINS'] ?? 'http://localhost:9200')."\nCookies/CSRF mitsenden; Details: README.md. Server/Queue/Backup nicht automatisch gestartet.\n";

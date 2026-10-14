@@ -19,7 +19,7 @@ return [
         'tinker', 'serve', 'down', 'up',
         'db:wipe', 'migrate:fresh', 'migrate:reset', 'migrate:refresh', 'migrate:rollback', 'migrate:generate',
         'key:generate', 'env:*', 'queue:work', 'queue:listen', 'schedule:work',
-        'schedule:run', 'vendor:publish', 'package:discover', 'ide-helper:*',
+        'schedule:run', 'vendor:publish', 'package:discover', 'ide-helper:*', 'scramble:*',
         'runner:create-user', 'admin:grant-access', 'make:filament-user', 'setup:*',
     ],
 ];

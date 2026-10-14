@@ -4,8 +4,8 @@ Stand: 13.10.2026. Diese Dokumentation beschreibt den geprüften lokalen Projekt
 
 ## Vollständige Referenzen
 
-- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 32 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
-- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 185 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
+- [Alle geladenen Laravel- und Paketkonfigurationen](docs/LARAVEL_KONFIGURATION.md): 33 Gruppen mit verschachtelten Einstellungen; Zugangsdaten und Schlüssel maskiert.
+- [Alle installierten Composer-Pakete](docs/COMPOSER_PAKETE.md): 186 Pakete mit Version und Einordnung als direkte/transitive Laufzeit-/Entwicklungsabhängigkeit.
 - [Arbeitsprotokoll und offene Aufgaben](PROJEKTDOKUMENTATION.md).
 - [E-Mail-Verifizierung: Paketprüfung und native Laravel-Integration](docs/EMAIL_VERIFIZIERUNG_PRUEFUNG.md): API eingerichtet; echte Mailzustellung separat konfigurieren.
 - [Kopia-Einrichtung](KOPIA_SETUP.md) und [Windows-Backup-Prüfung](BACKUP_PRUEFUNG.md).
@@ -56,6 +56,7 @@ php artisan migrate:status  # Migrationen kontrollieren
 | `config/filesystems.php` | Standarddisk `local` in `storage/app/private`; `public` in `storage/app/public`; S3-Konfiguration vorbereitet, kein Bucket eingerichtet |
 | `config/mail.php` | Mailer `log`; keine echte Mailzustellung eingerichtet |
 | `config/sluggable.php` | Eloquent Sluggable: `unique=true`, `onUpdate=false`, Trenner `-`, erster Suffix `2`; Quelle und maximale Länge pro Modell festlegen |
+| `config/scramble.php` | OpenAPI für eigene API-Routen und `/`; Docs nur local, Cookie-/CSRF-Anmeldung dokumentiert; Export nach `storage/app/private/openapi.json` |
 | `config/logging.php` | Stack mit Single-Dateilog, Level `debug`; typischer Logpfad `storage/logs/laravel.log` |
 | `config/services.php` | Platzhalter für Postmark, Resend, AWS SES und Slack; keine Socialite-Anbieter konfiguriert |
 | Framework-Broadcasting | Verbindung `log`, keine fachlichen Channels konfiguriert |
@@ -98,6 +99,7 @@ Alle Pfade beziehen sich auf die API-Basisadresse `http://localhost:8000`.
 | `POST /filament/logout` | Filament abmelden | Panel-Session, CSRF |
 | `/telescope` | Debug-Dashboard | ausschließlich `local`, Telescope aktiv; lokal ohne Login |
 | `/_laravel-brain` | Architekturgraph | ausschließlich `local`, nach Scan |
+| `/docs/api`, `/docs/api.json` | Scramble-Oberfläche und OpenAPI JSON | ausschließlich `local`; Oberfläche benötigt CDN-Zugriff |
 
 Filament-Downloads liegen ebenfalls unter `/filament`. Paketassets und Livewire verwenden teilweise gemeinsame technische Routen; diese sind keine Runner-Routen. Alte Panelpfade `/admin`, `/artisan-runner-ui`, `/login`, `/logout`, `/runner` sind entfernt.
 
@@ -109,6 +111,7 @@ Filament-Downloads liegen ebenfalls unter `/filament`. Paketassets und Livewire 
 | `filament/filament` 5.10.0 | `/filament`; `app/Providers/Filament/AdminPanelProvider.php`. Panel-ID `admin`, Guard `web`, Dashboard; keine fachlichen Resources |
 | `laravel/fortify` 1.41.0 | Kein eigenes Dashboard. API-Login über Fortify-Pipeline; `config/fortify.php` und eigener Provider/Responses |
 | `cviebrock/eloquent-sluggable` 13.0.1 | Automatische Slugs pro Eloquent-Modell über `Sluggable` und `sluggable()`; `config/sluggable.php`, keine eigene URL |
+| `dedoc/scramble` 0.13.47 | `/docs/api`, `/docs/api.json`; `config/scramble.php`, eigener ScrambleServiceProvider und ApiOperationTransformer für Enum-Codes, Action-/Fortify-Antworten und globale Fehler |
 | `laravel/sanctum` 4.3.3 | CSRF-Cookie und Session-Guard der API; `config/sanctum.php`, `statefulApi()` aktiv; keine Token-Erzeugung |
 | `laravel/socialite` 5.31.0 | Verwendung später über `Socialite::driver(...)`; noch kein Anbieter, keine OAuth-Routen |
 | `laravel/tinker` 3.0.2 | `php artisan tinker`; interaktive PHP-Konsole; in Runner gesperrt |
@@ -134,7 +137,7 @@ Runner-Konfiguration: `allowed=[]` erlaubt grundsätzlich alle Befehle außerhal
 tinker, serve, down, up, db:wipe, migrate:fresh, migrate:reset,
 migrate:refresh, migrate:rollback, migrate:generate, key:generate, env:*, queue:work,
 queue:listen, schedule:work, schedule:run, vendor:publish,
-package:discover, ide-helper:*, runner:create-user, admin:grant-access, make:filament-user, setup:*
+package:discover, ide-helper:*, scramble:*, runner:create-user, admin:grant-access, make:filament-user, setup:*
 ```
 
 Permission verwendet Guard `web`, Standardcache mit 24 Stunden Ablauf; Teams, Wildcard-Berechtigungen und Passport-Client-Credentials sind aus. Middleware-Aliase: `role`, `permission`, `role_or_permission`; einzelne Rechte über `can`. Methoden wie `givePermissionTo`, `assignRole`, `revokePermissionTo` halten den Paketcache aktuell.
@@ -220,7 +223,7 @@ Telescope maskiert Passwörter, Authorization-, Cookie- und CSRF-Header. Automat
 
 Weitere wichtige transitive Pakete: Livewire 4.4.7 (Filament), Filament-Komponenten, Laravel Passkeys 0.2.1 (Fortify), Laravel Stress 1.0.3 (Brain), Laravel Sentinel (Framework), Guzzle/OAuth/JWT-Bibliotheken (Socialite), Spatie Image/Optimizer (Media Library). Sie werden durch PHP-Autoload beziehungsweise ihr Hauptpaket aufgerufen; es gibt nicht für jede Bibliothek eine eigene URL. Alle Versionen im Paketverzeichnis.
 
-Tests nutzen SQLite im Arbeitsspeicher, Array-Sessions/-Cache, synchrone Queue; Telescope/Runner standardmäßig aus. Nach Installation von IDE Helper bestanden: 86 Tests mit 930 Assertions.
+Tests nutzen SQLite im Arbeitsspeicher, Array-Sessions/-Cache, synchrone Queue; Telescope/Runner standardmäßig aus. Nach Integration von Scramble bestanden: 89 Tests mit 965 Assertions.
 
 ## Frontend-Vorlage und Composer-Automatisierung
 

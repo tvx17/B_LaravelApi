@@ -28,6 +28,8 @@ Kitloong Laravel Migrations Generator wird als Entwicklungsabhängigkeit über d
 
 Laravel IDE Helper wird ebenfalls als Entwicklungsabhängigkeit installiert und automatisch registriert. `config/ide-helper.php` ist im Repository enthalten; keine Paketmigration, Benutzeranlage oder weitere Pflichtabfrage nötig. Nach dem Setup bei Bedarf lokal `php artisan ide-helper:generate --no-interaction`, `php artisan ide-helper:models --nowrite --no-interaction` und für PhpStorm `php -d memory_limit=512M artisan ide-helper:meta --no-interaction` ausführen. Die Modellgenerierung benötigt eine erreichbare, migrierte Datenbank. Generierte Dateien bleiben lokal/Git-ignoriert; Modelle unverändert. Keine automatische Generierung beim Setup oder nach Migrationen; bei `--no-dev` fehlt das Werkzeug.
 
+Scramble wird als Laufzeitabhängigkeit automatisch installiert und registriert. Konfiguration und Dokumentationsprovider sind im Repository enthalten; keine Migration, Benutzeranlage oder weitere Pflichtabfrage nötig. Abschlussübersichten nennen `/docs/api` und `/docs/api.json`; beide sind standardmäßig nur lokal erreichbar. Ein optionaler `php artisan scramble:export` schreibt die Spezifikation nach `storage/app/private/openapi.json`. Ein Export ist für den Aufruf im Browser nicht erforderlich.
+
 ## Nach der Einrichtung
 
 Der Assistent zeigt API-, Filament-, Artisan-, Telescope- und Brain-Adressen sowie einen passenden Serverbefehl. Ausgelassene Schritte können deren Nutzbarkeit einschränken. `storage:link` kann unter Windows entsprechende Symlink-Rechte benötigen.
